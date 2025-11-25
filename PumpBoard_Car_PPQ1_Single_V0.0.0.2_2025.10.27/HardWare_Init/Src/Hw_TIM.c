@@ -15,32 +15,32 @@ void TIM2_init(u32 arr,u32 psc)
 	TIM_OCInitTypeDef         TIM_OCInitStructure;
 	GPIO_InitTypeDef          GPIO_InitStructure;
 	
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2,ENABLE);  	//TIM2时钟使能 
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);  //使能PORTA时钟	
-	
-	//2.设置复用    相较于STM32F103而言，407的外设没有默认引脚（103有default Alternate Functions），要使用某外设，便需要对相应引脚做复用，调用GPIO_PinAFConfig()函数
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2,ENABLE);  	//TIM2 clock enable
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);  //Enable PORTA clock
+
+	//2. Set alternate function    Note: STM32F103 has default alternate functions, but 407 must explicitly configure alternate functions. To use a peripheral, must set the corresponding alternate function using GPIO_PinAFConfig() function
 	GPIO_PinAFConfig(GPIOB,GPIO_PinSource10,GPIO_AF_TIM2);   //PB10<-->TIM2-CH3
 	GPIO_PinAFConfig(GPIOB,GPIO_PinSource11,GPIO_AF_TIM2);  //PAB11<-->TIM2-CH4
 
-	//3.设置GPIO	
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10|GPIO_Pin_11;          
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;           //复用功能
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	   //速度100MHz
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;         //推挽复用输出
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;           //上拉
-	GPIO_Init(GPIOB,&GPIO_InitStructure);                  //初始化
+	//3. Configure GPIO
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10|GPIO_Pin_11;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;           //Set alternate function
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	   //Speed 100MHz
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;         //Push-pull alternate output
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;           //Pull-up
+	GPIO_Init(GPIOB,&GPIO_InitStructure);                  //Initialize
 	
-	
-	TIM_TimeBaseStructure.TIM_Prescaler = psc;             //定时器分频
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_CenterAligned1;//TIM_CounterMode_CenterAligned1; //中央对齐模式
-	TIM_TimeBaseStructure.TIM_Period = arr;   //自动重装载值
-	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; 
+
+	TIM_TimeBaseStructure.TIM_Prescaler = psc;             //Timer prescaler
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_CenterAligned1;//TIM_CounterMode_CenterAligned1; //Center-aligned mode
+	TIM_TimeBaseStructure.TIM_Period = arr;   //Auto-reload value
+	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
-	TIM_TimeBaseInit(TIM2,&TIM_TimeBaseStructure);//初始化定时器2
-	
-	//初始化TIM2 PWM模式		
-	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;//TIM_OCMode_PWM2;              //选择定时器模式:TIM脉冲宽度调制模式2
- 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //比较输出使能，无需输出
+	TIM_TimeBaseInit(TIM2,&TIM_TimeBaseStructure);//Initialize timer 2
+
+	//Initialize TIM2 PWM mode
+	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;//TIM_OCMode_PWM2;              //Select timer mode: TIM pulse width modulation mode 2
+ 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //Compare output enable, output is
 //    TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Disable;
 //    TIM_OCInitStructure.TIM_Pulse = 0;
     TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
@@ -49,16 +49,16 @@ void TIM2_init(u32 arr,u32 psc)
 //    TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCIdleState_Reset;
 	
 //    TIM_OCInitStructure.TIM_Pulse = 0;
-    TIM_SetCompare3(TIM2, 0); 
-    TIM_OC3PreloadConfig(TIM2, TIM_OCPreload_Enable); // 使能TIM2在CCR3上的预装载寄存器
+    TIM_SetCompare3(TIM2, 0);
+    TIM_OC3PreloadConfig(TIM2, TIM_OCPreload_Enable); // Enable TIM2 preload register on CCR3
     TIM_OC3Init(TIM2, &TIM_OCInitStructure);
 
-    TIM_SetCompare4(TIM2, 0); 
-    TIM_OC4PreloadConfig(TIM2, TIM_OCPreload_Enable); // 使能TIM2在CCR4上的预装载寄存器
+    TIM_SetCompare4(TIM2, 0);
+    TIM_OC4PreloadConfig(TIM2, TIM_OCPreload_Enable); // Enable TIM2 preload register on CCR4
     TIM_OC4Init(TIM2, &TIM_OCInitStructure);
-	
-	TIM_ARRPreloadConfig(TIM2,ENABLE);                 //ARPE使能 
-		
-	TIM_Cmd(TIM2, ENABLE);            //使能TIM2
+
+	TIM_ARRPreloadConfig(TIM2,ENABLE);                 //ARPE enable
+
+	TIM_Cmd(TIM2, ENABLE);            //Enable TIM2
 	
 }

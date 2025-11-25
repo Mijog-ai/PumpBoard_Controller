@@ -1,11 +1,11 @@
 #include "limit.h"
-/** 
- * @brief 限幅函数
- * @param x 限幅变量
- * @param l_bound 下限
- * @param h_bound 上限
- * @return 无
- * @detailed 有容错性，如果上下限传递的顺序不正确，仍然可以正确限幅
+/**
+ * @brief Limit function
+ * @param x Variable to limit
+ * @param l_bound Lower bound
+ * @param h_bound Upper bound
+ * @return None
+ * @detailed Has fault tolerance, if upper and lower bounds are passed in wrong order, can still limit correctly
  */
 void Limit_Q31(int* x, int l_bound, int h_bound)
 {
@@ -47,12 +47,12 @@ void Limit_f32(float* x, float l_bound, float h_bound)
 		(*x) = l_bound;
 }
 
-/** 
- * @brief 限幅函数
- * @param x 限幅变量
- * @param l_bound 下限
- * @param h_bound 上限
- * @return 无
+/**
+ * @brief Limit function
+ * @param x Variable to limit
+ * @param l_bound Lower bound
+ * @param h_bound Upper bound
+ * @return None
  */
 void Limit_Q15(short* x, short l_bound, short h_bound)
 {
@@ -74,11 +74,11 @@ void Limit_Q15(short* x, short l_bound, short h_bound)
 		(*x) = l_bound;
 }
 
-/** 
- * @brief 速率受限的跟踪
- * @param x 跟踪变量
- * @param target 跟踪目标
- * @return 无
+/**
+ * @brief Rate-limited tracking
+ * @param x Tracking variable
+ * @param target Tracking target
+ * @return None
  */
 void Rate_Tracking_Q31 (volatile int* x, int target, int tracking_rate)
 {

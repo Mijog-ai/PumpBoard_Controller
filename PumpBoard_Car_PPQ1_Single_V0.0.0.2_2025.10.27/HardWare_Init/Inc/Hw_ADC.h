@@ -7,43 +7,43 @@
 
 //#define VOLT_FACTOR               9120
 
-//采样时间 = 保持时间13.5+12.5个周期的转换时间=26周期，ADC时钟10.66M，单个通道时间2.44us
-//一共有5个通道，采样一个周期是12.2us，200Hz（5ms）的频率可以做400次
-//ADC求平均配置
+//Sampling time = Hold time 13.5+12.5 cycles conversion time=26 cycles, ADC clock 10.66M, single channel time 2.44us
+//Total 5 channels, sampling one cycle is 12.2us, 200Hz (5ms) frequency can do 400 times
+//ADC averaging configuration
 //ADC_DMA
 #define ADC_DMA					    DMA2_Stream0
 #define ADC_DMA_CH	 			    DMA_Channel_0
 
-#define MCU_ADC_CHANNEL_NUM         (5)   									//ADC通道数
-#define MCU_ADC_AVG_NUM             (32)		                            //ADC取平均的总数
+#define MCU_ADC_CHANNEL_NUM         (5)   									//ADC channel count
+#define MCU_ADC_AVG_NUM             (32)		                            //ADC averaging total count
 
-//传感器过流监测
+//Sensor overcurrent monitoring
 #define SENSOR_OVER_CURRENT_GPIO  	 	GPIOC
 #define SENSOR_OVER_CURRENT_PIN   	 	GPIO_Pin_8
 #define SENSOR_OVER_CURRENT_CHANNEL  	ADC_Channel_0
 
-//模拟输出1故障监测
+//Analog output 1 fault monitoring
 #define ANALOG_01_OUTPUT_CHECK_GPIO  	GPIOD
 #define ANALOG_01_OUTPUT_CHECK_PIN   	GPIO_Pin_10
 #define ANALOG_01_OUTPUT_CHECK_CHANNEL  ADC_Channel_1
 
-//模拟输出2故障检测
+//Analog output 2 fault detection
 #define ANALOG_02_OUTPUT_CHECK_GPIO  	GPIOC
 #define ANALOG_02_OUTPUT_CHECK_PIN   	GPIO_Pin_10
 #define ANALOG_02_OUTPUT_CHECK_CHANNEL  ADC_Channel_2
 
-//电磁阀电流A检测
+//Solenoid current A detection
 #define CURRENT_A_CHECK_GPIO  			GPIOE
 #define CURRENT_A_CHECK_PIN   			GPIO_Pin_14
 #define CURRENT_A_CHECK_CHANNEL  	    ADC_Channel_3
 
-//电磁阀电流B检测
+//Solenoid current B detection
 #define CURRENT_B_CHECK_GPIO  			GPIOE
 #define CURRENT_B_CHECK_PIN   			GPIO_Pin_15
 #define CURRENT_B_CHECK_CHANNEL   		ADC_Channel_4
 
 
-//对应的模拟量在数组g_ADC_Original_Value[]中保存的位置
+//Corresponding analog values position saved in array g_ADC_Original_Value[]
 #define SENSOR_OVER_CURRENT         0
 #define ANLOG_01_OUTPUT_CHECK       1
 #define ANLOG_02_OUTPUT_CHECK       2
@@ -96,7 +96,7 @@ void Cal_MCU_AvgAdcVal_Fun(void);
 void Test_LowPassFilterFunc(void);
 void LowPassFilterFunc(float *P, float, float);
 
-//硬件初始化
+//Hardware initialization
 void Adc1_Analog_Input_Init(void);
 
 
