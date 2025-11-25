@@ -3,59 +3,59 @@
 
 #define HL_RDCMD_LEN                0x30
 #define HL_WRCMD_LEN                0x30
-//指令类型宏定义
-#define HL_CMDTYPE_RD				0x01		//读指令
-#define HL_CMDTYPE_WR				0x02		//写指令
-#define HL_CMDTYPE_WR_NR			0x03		//写控制表指令（无返回）
+//Command type macro definitions
+#define HL_CMDTYPE_RD				0x01		//Read command
+#define HL_CMDTYPE_WR				0x02		//Write command
+#define HL_CMDTYPE_WR_NR			0x03		//Write control table command (no return)
 
-//内存控制表宏定义
-#define HL_CMDMAP_LEN				256			//内存控制表总长度（int16单位）
-#define HL_CMDMAP_INDLEN			16 			//内存控制表主索引数
-#define HL_CMDMAP_SUBLEN			16 			//内存控制表子索引数
+//Memory control table macro definitions
+#define HL_CMDMAP_LEN				256			//Memory control table total length (int16 units)
+#define HL_CMDMAP_INDLEN			16 			//Memory control table main index count
+#define HL_CMDMAP_SUBLEN			16 			//Memory control table sub-index count
 
-//读索引
-#define	HL_INF_SW_VERS				0x01        //软件版本
+//Read index
+#define	HL_INF_SW_VERS				0x01        //Software version
 
-#define HL_INF_ANG_ADC_FDB          0x02        //角度ADC采样
-#define	HL_INF_PRS_ADC_FDB			0x03        //压力ADC采样
-#define	HL_INF_ANALOG_OUTPUT		0x04		//模拟输出
-#define HL_INF_ANG_PER_UNIT         0x05		//角度反馈标幺值(0-10000)
-#define HL_INF_PRS_PER_UNIT         0x06		//压力反馈标幺值(0-10000)
-#define	HL_FDB_USB_ANG_REF			0x07		//角度设定值0-10000
-#define	HL_FDB_USB_PRS_REF			0x08		//压力设定值0-10000
-#define HL_INF_PRS_VAL_BAR          0x09		//压力反馈实际值
-#define HL_INF_CUR_A_FDB            0x0A		//电磁阀A电流反馈
-#define HL_INF_CUR_B_FDB            0x0B		//电磁阀B电流反馈
+#define HL_INF_ANG_ADC_FDB          0x02        //Angle ADC sampling
+#define	HL_INF_PRS_ADC_FDB			0x03        //Pressure ADC sampling
+#define	HL_INF_ANALOG_OUTPUT		0x04		//Analog output
+#define HL_INF_ANG_PER_UNIT         0x05		//Angle feedback per unit value (0-10000)
+#define HL_INF_PRS_PER_UNIT         0x06		//Pressure feedback per unit value (0-10000)
+#define	HL_FDB_USB_ANG_REF			0x07		//Angle set value 0-10000
+#define	HL_FDB_USB_PRS_REF			0x08		//Pressure set value 0-10000
+#define HL_INF_PRS_VAL_BAR          0x09		//Pressure feedback actual value
+#define HL_INF_CUR_A_FDB            0x0A		//Solenoid valve A current feedback
+#define HL_INF_CUR_B_FDB            0x0B		//Solenoid valve B current feedback
 
-#define HL_INF_CC_MIN               0x0C		//最小排量
-#define HL_INF_CC_MAX               0x0D		//最大排量
-#define HL_INF_PI_ANG_P             0x0E		//PID角度Kp
-#define HL_INF_PI_ANG_P_DIV         0x0F		//PID角度Kp_div
-#define HL_INF_PI_ANG_ERR_D         0x10		//PID角度Kd
-#define HL_INF_PI_ANG_ERR_D_DIV     0x11		//PID角度Kd_div
-#define HL_INF_PI_PRS_P             0x12		//PID压力Kp
-#define HL_INF_PI_PRS_P_DIV         0x13	//PID压力Kp_div
-#define HL_INF_PI_PRS_ERR_D         0x14		//PID压力Kd
-#define HL_INF_PI_PRS_ERR_D_DIV     0x15		//PID压力Kd_div
+#define HL_INF_CC_MIN               0x0C		//Minimum displacement
+#define HL_INF_CC_MAX               0x0D		//Maximum displacement
+#define HL_INF_PI_ANG_P             0x0E		//PID angle Kp
+#define HL_INF_PI_ANG_P_DIV         0x0F		//PID angle Kp_div
+#define HL_INF_PI_ANG_ERR_D         0x10		//PID angle Kd
+#define HL_INF_PI_ANG_ERR_D_DIV     0x11		//PID angle Kd_div
+#define HL_INF_PI_PRS_P             0x12		//PID pressure Kp
+#define HL_INF_PI_PRS_P_DIV         0x13	//PID pressure Kp_div
+#define HL_INF_PI_PRS_ERR_D         0x14		//PID pressure Kd
+#define HL_INF_PI_PRS_ERR_D_DIV     0x15		//PID pressure Kd_div
 
-#define HL_INF_ANG_MIN_ADC_FDB      0x16		//角度ADC最小值
-#define HL_INF_ANG_MID_ADC_FDB      0x17		//角度ADC中间值
-#define HL_INF_ANG_MID_SCOPE_FDB    0x18		//角度ADC中间值对应角度设定百分比
-#define HL_INF_ANG_MAX_ADC_FDB      0x19		//角度ADC最大值
-#define HL_INF_PRS_MIN_ADC_FDB      0x1A		//压力ADC最小值
-#define HL_INF_PRS_MAX_ADC_FDB      0x1B		//压力ADC最大值
+#define HL_INF_ANG_MIN_ADC_FDB      0x16		//Angle ADC minimum value
+#define HL_INF_ANG_MID_ADC_FDB      0x17		//Angle ADC middle value
+#define HL_INF_ANG_MID_SCOPE_FDB    0x18		//Angle ADC middle value corresponding to angle setting percentage
+#define HL_INF_ANG_MAX_ADC_FDB      0x19		//Angle ADC maximum value
+#define HL_INF_PRS_MIN_ADC_FDB      0x1A		//Pressure ADC minimum value
+#define HL_INF_PRS_MAX_ADC_FDB      0x1B		//Pressure ADC maximum value
 
-#define	HL_ERROR_READY				0x1C		//无故障
-#define HL_ERROR_CurFdb_A_BREAK     0x1D		//电磁阀A故障
-#define HL_ERROR_CurFdb_B_BREAK     0x1E		//电磁阀B故障
-#define HL_ERROR_ANGSENSOR_BREAK    0x1F		//摆角传感器故障
-#define HL_ERROR_PRSSENSOR_01_BREAK 0x20		//压力传感器1故障
-#define HL_ERROR_PRSSENSOR_02_BREAK 0x21		//压力传感器2故障
-#define HL_ERROR_CHKE_BREAK         0x22		//校验故障
-#define HL_ERROR_E2PROM_BREAK       0x23		//参数保存失败
-#define HL_ERROR_BUS_BREAK          0x24		//总线故障
+#define	HL_ERROR_READY				0x1C		//No fault
+#define HL_ERROR_CurFdb_A_BREAK     0x1D		//Solenoid valve A fault
+#define HL_ERROR_CurFdb_B_BREAK     0x1E		//Solenoid valve B fault
+#define HL_ERROR_ANGSENSOR_BREAK    0x1F		//Angle sensor fault
+#define HL_ERROR_PRSSENSOR_01_BREAK 0x20		//Pressure sensor 1 fault
+#define HL_ERROR_PRSSENSOR_02_BREAK 0x21		//Pressure sensor 2 fault
+#define HL_ERROR_CHKE_BREAK         0x22		//Checksum fault
+#define HL_ERROR_E2PROM_BREAK       0x23		//Parameter save failed
+#define HL_ERROR_BUS_BREAK          0x24		//Bus fault
 
-//控制指令 写 索引
+//Control command write index
 #define	HL_ENA_PUMP_STRT			0x01
 #define	HL_ENA_PRS_LOOP				0x02
 #define	HL_ENA_PWR_LOOP				0x03
@@ -67,7 +67,7 @@
 #define HL_CTRL_USB_PRS_REF         0x07
 #define HL_CTRL_USB_PWR_REF         0x08
 
-//控制参数 (写) 索引
+//Control parameters (write) index
 #define	HL_ENA_LEAKEAGE				0x01
 
 #define	HL_PRD_ANG_LOOP				0x08

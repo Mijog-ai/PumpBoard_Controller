@@ -10,84 +10,84 @@
 
 #define SW_VERS                                     (s32)(0x0105)
 
-#define PPQ_1                                                        //PPQ_1是双电磁阀
+#define PPQ_1                                                        //PPQ_1: Dual solenoid valves
 
 #define WAY_3
 #define old_way
 
 
 
-//PPRE2在SYS_CLK经历2分频，变为84Mhz
-//PPRE1在SYS_CLK经历4分频，变为42Mhz；TIM2的时钟，由于PPRE1是经SYS_CLK的4分频得到，所以TIM的时钟频率需要乘以2，即为84MHZ         2024.05.19    Zp
-#define MODULE_FREQ                                 (200)                                          //1K调制频率
-#define ANGSHAKEFREQ                                (100)//(100)//(60)                                     //颤振频率
+//PPRE2: SYS_CLK divided by 2, frequency is 84Mhz
+//PPRE1: SYS_CLK divided by 4, frequency is 42Mhz, TIM2 clock, because PPRE1 is SYS_CLK divided by 4, TIM clock frequency needs to be multiplied by 2, becomes 84MHZ         2024.05.19    Zp
+#define MODULE_FREQ                                 (200)                                          //1K modulation frequency
+#define ANGSHAKEFREQ                                (100)//(100)//(60)                                     //Dither frequency
 #define ANGSHAKEAMP                                 (0.02f)
 #define SYS_CLK                                     (42000000)
 #define TIM2_PSC                                    (3)
 #define CLKIM                                       (SYS_CLK / (TIM2_PSC + 1))                      //21MHZ
-#define PWM_ARR                                     (CLKIM / MODULE_FREQ)                           //PWM周期值     21000
+#define PWM_ARR                                     (CLKIM / MODULE_FREQ)                           //PWM period value     21000
 
-/*ADI7949的AD精度是14位*/
-//角度
-#define ANG_FDB_MIN_ADC_VAL                         8902//9382//3040//3026//1930//1600//380      //最小反馈角度ADC
-#define ANG_FDB_MID_ADC_VAL							9546//8400																		//反馈角度ADC中间值
-#define ANG_FDB_MID_ADC_VAL_SCOPE                   514//1013    //反馈角度ADC中间值对应的排量
-#define ANG_FDB_MAX_ADC_VAL                         15155//29400//15287//10455//6400//1590                                          //最大反馈角度ADC
-#define ANG_PERUNIT_SCOPE                           5000//10000//12000                                                             //标幺的范围
-//压力     ☆其线性度未知，如果后期发现压力跟随有问题，需要重新标定    ZP_2024.07.01
+/*ADI7949 AD precision is 14 bits*/
+//Angle
+#define ANG_FDB_MIN_ADC_VAL                         8902//9382//3040//3026//1930//1600//380      //Minimum feedback angle ADC
+#define ANG_FDB_MID_ADC_VAL							9546//8400																		//Feedback angle ADC middle value
+#define ANG_FDB_MID_ADC_VAL_SCOPE                   514//1013    //Feedback angle ADC middle value corresponding range
+#define ANG_FDB_MAX_ADC_VAL                         15155//29400//15287//10455//6400//1590                                          //Maximum feedback angle ADC
+#define ANG_PERUNIT_SCOPE                           5000//10000//12000                                                             //Per unit range
+//Pressure     Due to unknown sensor reason, there is a problem with feedback pressure calibration, needs recalibration    ZP_2024.07.01
 #define PRS_FDB_MIN_ADC_VAL                         2000
 #define PRS_FDB_MID_ADC_VAL  						300
-#define PRS_FDB_MID_ADC_VAL_SCOPE					10		//单位bar  
+#define PRS_FDB_MID_ADC_VAL_SCOPE					10		//Unit: bar  
 #define PRS_FDB_MAX_ADC_VAL                         34344	//2000  //1800--21Mpa   2000--25Mpa     2200--29
-#define PRS_FDB_MAX_ADC_VAL_SCOPE					600		//单位bar
+#define PRS_FDB_MAX_ADC_VAL_SCOPE					600		//Unit: bar
 
-//#define PRS_MAX_VAL                               347   //最大压力值200Bar
-//最大排量
+//#define PRS_MAX_VAL                               347   //Limited pressure value 200Bar
+//Displacement
 #define PUMP_MIN_CC_VAL                             0
 #define PUMP_MAX_CC_VAL                             28
-//最大扭矩值--功率限制
+//Limited torque value--Displacement
 #define PUMP_MIN_TOR_VAL                            0
 #define PUMP_MAX_TOR_VAL                            250
 
 #define VALVE_4MA_VAL                               0x3264                 //0x1500: 5376
-#define VALVE_MID_POSI_VAL                          0x87A8                 //0x2AD8：10968
-#define VALVE_20MA_VAL                              0xDD4A                 //0x3FFF：16383
-/*=======================时间常数========================================================================================================*/
-#define ANG_ERR_D_CYCLE                             2                      //         角度误差微分计算周期
+#define VALVE_MID_POSI_VAL                          0x87A8                 //0x2AD8: 10968
+#define VALVE_20MA_VAL                              0xDD4A                 //0x3FFF: 16383
+/*=======================Time constants========================================================================================================*/
+#define ANG_ERR_D_CYCLE                             2                      //         Angle error differential period
 #define PRS_ERR_D_CYCLE                             2                      //         
-//一阶滤波时间常数--a
+//First-order filter time constant--a
 #define ANG_REF_FILTER_TIM_CONST                    (0.0065f)//(0.0008f)
 #define ANG_FDB_FILTER_TIM_CONST                    (0.015f)//(0.0089f)
 #define PRS_FDB_FILTER_TIM_CONST                    (0.059f)
 #define	PWR_FDB_FILTER_TIM_CONST					(0.001f)
-//微分计算周期
-#define ANG_D_FILTER_CNT                            50//160//200//60//50                     //50对应5ms      尝试和颤振频率保持一致      
+//Differential period
+#define ANG_D_FILTER_CNT                            50//160//200//60//50                     //50 corresponds to 5ms      Should be consistent with test and dither frequency      
 #define PRS_D_FILTER_CNT                            50                     //         
-//PID环---计算周期100us
+//PID loop---Control period 100us
 #define ANG_PI_LOOP_CYCLE                           10//50
 #define PRS_PI_LOOP_CYCLE                           25
-//参数保存周期
+//Current loop period
 #define CUR_PI_LOOP_CYCLE                           1
 
 #define CLAMP(value, min, max) ((value) < (min) ? (min) : ((value) > (max) ? (max) : (value)))
 
-/*=======================转换系数========================================================================================================*/
-#define PWRCHGTORRATIO                              (58.8475f)              //扭矩转换系数，用于功率环
+/*=======================Conversion coefficients========================================================================================================*/
+#define PWRCHGTORRATIO                              (58.8475f)              //Torque conversion coefficient, used for power conversion
 
 
-#define HYSTERESIS_BAND         100     // 滞环带宽度（单位：Q15格式）
-#define MAX_CURRENT_RATE        500     // 电流最大变化速率（mA/cycle）
+#define HYSTERESIS_BAND         100     // Hysteresis band width, unit is Q15 format
+#define MAX_CURRENT_RATE        500     // Maximum current change rate (mA/cycle)
 
 
-// 控制参数配置
-#define PRS_SAFETY_MARGIN          200U      // 安全裕度
-#define PRS_APPROACH_OFFSET        300U      // 接近时的预偏移量
-#define PRS_FAST_APPROACH_THRESH   1000U     // 快速接近阈值
-#define PRS_SLOW_APPROACH_THRESH   500U    	 // 缓慢接近阈值
-#define RAMP_RATE_FAST             50U       // 快速斜坡速率
-#define RAMP_RATE_NORMAL           20U       // 正常斜坡速率
-#define RAMP_RATE_SLOW             5U        // 慢速斜坡速率
-#define PRESSURE_CHANGE_RATE_MAX   100U      // 最大压力变化率阈值
+// Control parameters
+#define PRS_SAFETY_MARGIN          200U      // Safety margin
+#define PRS_APPROACH_OFFSET        300U      // Approach pre-offset
+#define PRS_FAST_APPROACH_THRESH   1000U     // Fast approach threshold
+#define PRS_SLOW_APPROACH_THRESH   500U    	 // Slow approach threshold
+#define RAMP_RATE_FAST             50U       // Fast ramp rate
+#define RAMP_RATE_NORMAL           20U       // Normal ramp rate
+#define RAMP_RATE_SLOW             5U        // Slow ramp rate
+#define PRESSURE_CHANGE_RATE_MAX   100U      // Maximum pressure change limit value
 
 typedef struct
 {
@@ -119,7 +119,7 @@ typedef struct
 {
     u16  g_u16_Angle_Err_D_Period;
     u16  g_u16_Prs_Err_D_Period;
-    u16  g_u16_Ang_Fdb_D_Period;            //角度反馈微分周期
+    u16  g_u16_Ang_Fdb_D_Period;            //Angle feedback differential period
     u16  g_u16_Prs_Fdb_D_Period;
     u16  g_u16_Ang_PI_LOOP_Period;
     u16  g_u16_Prs_PI_LOOP_Period;
@@ -130,7 +130,7 @@ typedef struct
 
 typedef struct
 {
-    u16  g_u16_Ang_Fdb_D_Cnt;            //角度反馈微分周期
+    u16  g_u16_Ang_Fdb_D_Cnt;            //Angle feedback differential period
     u16  g_u16_Prs_Fdb_D_Cnt;
     u16  g_u16_Ang_PI_LOOP_Cnt;
     u16  g_u16_Prs_PI_LOOP_Cnt;
@@ -152,12 +152,12 @@ typedef struct
 {
     s32 g_s32_CurFdb_A;                         //mA
     s32 g_s32_CurFdb_B;
-    u32 g_u32_AngFdb;                           //标幺值
+    u32 g_u32_AngFdb;                           //Per unit value
     float g_f32_PressureFdb;
-    u32 g_u32_PressureFdb;                      //标幺值
+    u32 g_u32_PressureFdb;                      //Per unit value
     
 //    float g_f32_PressureFdb_D;
-    s32 g_s32_PressureFdb_D;                    //压力反馈微分对应的%   
+    s32 g_s32_PressureFdb_D;                    //Pressure feedback differential correspondence %   
     s32 g_s32_AngFdb_D;
 }_FEEDBACK_VALUE;
 
@@ -178,7 +178,7 @@ typedef struct
     u8  AngLeak_Ena;
     u8  PrsLoop_Ena;
     u8  PwrLoop_Ena;
-    u8  ParaSaveEna;                //参数保存使能        2024.08.01    Zp
+    u8  ParaSaveEna;                //Parameter save enable        2024.08.01    Zp
 }_PPQ_ENA_CMD;
 
 #define _PPQ_ENA_CMD_DEFAULT        {0, 0, 0, 0, 0}
@@ -207,9 +207,9 @@ typedef struct
     _LOW_PASS_FILTER_PARA   *LowPassFilterTimConst;
     _SWING_PARA             *AngSwingPara;
     _PPQ_ENA_CMD            *PpqEna;
-    float                   g_f32_PrsCompAngRatio;        //压力补偿系数，类似阿托斯那种慢的工业阀的时候，可以把这个参数‘放’出来。        2024.06.18    Zp
+    float                   g_f32_PrsCompAngRatio;        //Pressure compensation coefficient, swash plate angle regression industrial process, can adjust pump displacement. Test data        2024.06.18    Zp
     u16                     g_u16_AngleLoop_P_Offset;
-    float                   g_f32_leakage_compensation;   //泄露系数        2024.06.18    Zp
+    float                   g_f32_leakage_compensation;   //Leakage coefficient        2024.06.18    Zp
     float                   g_f32TorqueRatio;
 //    float       g_f32_Ang_Ref_FilterPara;
 }_Parameter_Setting;

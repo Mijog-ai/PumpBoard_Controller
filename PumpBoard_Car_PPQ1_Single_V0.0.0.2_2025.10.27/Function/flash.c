@@ -21,22 +21,22 @@ void Flash_Read(u32 Address, u8* Readbuff, u32 Len)
     }		
 } // */
 
-//读取指定地址的半字(16位数据) 
-//faddr:读地址 
-//返回值:对应数据.
+//Read halfword at specified address (16-bit data)
+//faddr: read address
+//Return value: corresponding data
 u32 STMFLASH_ReadWord(u32 faddr)
 {
 	return *(vu32*)faddr; 
 } 
 
-//返回值:对应数据.
+//Return value: corresponding data
 u16 STMFLASH_Read_HalfWord(u32 faddr)
 {
 	return *(vu32*)faddr; 
 } 
-//获取某个地址所在的flash扇区
-//addr:flash地址
-//返回值:0~11,即addr所在的扇区
+//Get flash sector where address is located
+//addr: flash address
+//Return value: 0~11, sector where addr is located
 uint16_t STMFLASH_GetFlashSector(u32 addr)
 {
 	if(addr<ADDR_FLASH_SECTOR_1)return FLASH_Sector_0;
@@ -49,55 +49,55 @@ uint16_t STMFLASH_GetFlashSector(u32 addr)
     else if(addr<ADDR_FLASH_SECTOR_8)return FLASH_Sector_7;
 	return FLASH_Sector_11;	
 }
-//从指定地址开始写入指定长度的数据
-//特别注意:因为STM32F4的扇区实在太大,没办法本地保存扇区数据,所以本函数
-//         写地址如果非0XFF,那么会先擦除整个扇区且不保存扇区数据.所以
-//         写非0XFF的地址,将导致整个扇区数据丢失.建议写之前确保扇区里
-//         没有重要数据,最好是整个扇区先擦除了,然后慢慢往后写. 
-//该函数对OTP区域也有效!可以用来写OTP区!
-//OTP区域地址范围:0X1FFF7800~0X1FFF7A0F
-//WriteAddr:起始地址(此地址必须为4的倍数!!)
-//pBuffer:数据指针
-//NumToWrite:字(32位)数(就是要写入的32位数据的个数.) 
+//Write specified length of data starting from specified address
+//Important note: Because STM32F4 sector is too large, cannot guarantee save operations, therefore need to ensure
+//         If write address is not 0xFF, must erase sector first or it will cause previous data loss
+//         Writing to non-0xFF addresses will cause other sector data loss. Must ensure before writing
+//         No required data, or backup entire sector data, erase, then rewrite
+//This function is also valid for OTP area! But be cautious writing OTP!
+//OTP area address range: 0X1FFF7800~0X1FFF7A0F
+//WriteAddr: start address (this address must be multiple of 4!!)
+//pBuffer: data pointer
+//NumToWrite: word (32-bit) count (number of 32-bit data to write) 
 void STMFLASH_Write(u32 WriteAddr,u32 *pBuffer,u32 NumToWrite)	
 { 
   FLASH_Status status = FLASH_COMPLETE;
 	u32 addrx=0;
 	u32 endaddr=0;	
-  if(WriteAddr<STM32_FLASH_BASE||WriteAddr%4)return;	//非法地址
-	FLASH_Unlock();									//解锁 
-  FLASH_DataCacheCmd(DISABLE);//FLASH擦除期间,必须禁止数据缓存
+  if(WriteAddr<STM32_FLASH_BASE||WriteAddr%4)return;	//Illegal address
+	FLASH_Unlock();									//Unlock
+  FLASH_DataCacheCmd(DISABLE);//During FLASH erase, must disable data cache
  		
-	addrx=WriteAddr;				//写入的起始地址
-	endaddr=WriteAddr+NumToWrite*4;	//写入的结束地址
-	if(addrx<0X1FFF0000)			//只有主存储区,才需要执行擦除操作!!
+	addrx=WriteAddr;				//Write start address
+	endaddr=WriteAddr+NumToWrite*4;	//Write end address
+	if(addrx<0X1FFF0000)			//Only for main storage area, need to execute erase operation!!
 	{
-		while(addrx<endaddr)		//扫清一切障碍.(对非FFFFFFFF的地方,先擦除)
+		while(addrx<endaddr)		//Scan entire sector (for non-FFFFFFFF locations, erase first)
 		{
-			if(STMFLASH_ReadWord(addrx)!=0XFFFFFFFF)//有非0XFFFFFFFF的地方,要擦除这个扇区
-			{   
-				status=FLASH_EraseSector(STMFLASH_GetFlashSector(addrx),VoltageRange_3);//VCC=2.7~3.6V之间!!
-				if(status!=FLASH_COMPLETE)break;	//发生错误了
+			if(STMFLASH_ReadWord(addrx)!=0XFFFFFFFF)//If there are non-0XFFFFFFFF locations, need to erase sector
+			{
+				status=FLASH_EraseSector(STMFLASH_GetFlashSector(addrx),VoltageRange_3);//VCC=2.7~3.6V range!!
+				if(status!=FLASH_COMPLETE)break;	//Erase operation failed
 			}else addrx+=4;
 		} 
 	}
 	if(status==FLASH_COMPLETE)
 	{
-		while(WriteAddr<endaddr)//写数据
+		while(WriteAddr<endaddr)//Write data
 		{
-			if(FLASH_ProgramWord(WriteAddr,*pBuffer)!=FLASH_COMPLETE)//写入数据
-			{ 
-				break;	//写入异常
+			if(FLASH_ProgramWord(WriteAddr,*pBuffer)!=FLASH_COMPLETE)//Write data
+			{
+				break;	//Write exception
 			}
 			WriteAddr+=4;
 			pBuffer++;
-		} 
+		}
 	}
-    FLASH_DataCacheCmd(ENABLE);	//FLASH擦除结束,开启数据缓存
-	FLASH_Lock();//上锁
+    FLASH_DataCacheCmd(ENABLE);	//After FLASH erase complete, enable data cache
+	FLASH_Lock();//Lock
 } 
 
-//计算将会用到多少页Flash（Size字节为单位）
+//Calculate pages of Flash needed (Size in bytes)
 //u32 Flash_PagesMask(vu32 Size)
 //{
 //	u32 pagenumber = 0x0;
@@ -115,7 +115,7 @@ void STMFLASH_Write(u32 WriteAddr,u32 *pBuffer,u32 NumToWrite)
 
 //}
 
-//准备flash空间，直接擦除1个扇区
+//Prepare flash space, directly erase 1 sector
 s32 Flash_Prepared(u32 Address, u32 Len)
 {
 //	u32 NbrOfPage = 0;
@@ -139,17 +139,17 @@ s32 IAP_EraseSWFlash(u32 Address, u32 size)
 {
 	s32 result = 0x00;
 
-	__disable_irq();   //关闭总中断
+	__disable_irq();   //Disable all interrupts
 	if(!Flash_Prepared(Address, size))
 		result = 0x01;
-	__enable_irq();		//开放总中断
+	__enable_irq();		//Enable all interrupts
 
 	return result;
 }
 
-//WriteAddr:起始地址(此地址必须为4的倍数!!)
-//pBuffer:数据指针
-//NumToWrite:字(32位)数(就是要写入的32位数据的个数.) 
+//WriteAddr: start address (this address must be multiple of 4!!)
+//pBuffer: data pointer
+//NumToWrite: word (32-bit) count (number of 32-bit data to write)
 void STMFLASH_Write_Word(u32 WriteAddr,s32 *pBuffer,u32 NumToWrite)	
 { 
     FLASH_Status status = FLASH_COMPLETE;
@@ -158,24 +158,24 @@ void STMFLASH_Write_Word(u32 WriteAddr,s32 *pBuffer,u32 NumToWrite)
     if (WriteAddr < STM32_FLASH_BASE|| WriteAddr % 4)
 	{
 		SetErrorByte(CTRLER_ERROR_E2PROM_BREAK);
-        return;	//非法地址
+        return;	//Illegal address
 	}
-	FLASH_Unlock();									//解锁 
-    FLASH_DataCacheCmd(DISABLE);    //FLASH擦除期间,必须禁止数据缓存
+	FLASH_Unlock();									//Unlock
+    FLASH_DataCacheCmd(DISABLE);    //During FLASH erase, must disable data cache
  		
-	addrx = WriteAddr;				//写入的起始地址
-	endaddr = WriteAddr + NumToWrite * 4;	//写入的结束地址
-	if (addrx < 0x1FFF0000)			//只有主存储区,才需要执行擦除操作!!
+	addrx = WriteAddr;				//Write start address
+	endaddr = WriteAddr + NumToWrite * 4;	//Write end address
+	if (addrx < 0x1FFF0000)			//Only for main storage area, need to execute erase operation!!
 	{
-		while (addrx < endaddr)		//扫清一切障碍.(对非FFFFFFFF的地方,先擦除)
+		while (addrx < endaddr)		//Scan entire sector (for non-FFFFFFFF locations, erase first)
 		{
-			if (STMFLASH_ReadWord(addrx)!= 0xFFFFFFFF)//有非0XFFFFFFFF的地方,要擦除这个扇区
-			{   
-				status = FLASH_EraseSector(STMFLASH_GetFlashSector(addrx),VoltageRange_3);//VCC=2.7~3.6V之间!!
+			if (STMFLASH_ReadWord(addrx)!= 0xFFFFFFFF)//If there are non-0XFFFFFFFF locations, need to erase sector
+			{
+				status = FLASH_EraseSector(STMFLASH_GetFlashSector(addrx),VoltageRange_3);//VCC=2.7~3.6V range!!
 				if(status != FLASH_COMPLETE)
 				{
 					SetErrorByte(CTRLER_ERROR_E2PROM_BREAK);
-                    break;	            //发生错误了
+                    break;	            //Erase operation failed
 				}
 			}
 			else 
@@ -186,44 +186,44 @@ void STMFLASH_Write_Word(u32 WriteAddr,s32 *pBuffer,u32 NumToWrite)
 	}
 	if (status == FLASH_COMPLETE)
 	{
-		while (WriteAddr < endaddr)//写数据
+		while (WriteAddr < endaddr)//Write data
 		{
-			if (FLASH_ProgramWord(WriteAddr,*pBuffer) != FLASH_COMPLETE)//写入数据
-			{ 
+			if (FLASH_ProgramWord(WriteAddr,*pBuffer) != FLASH_COMPLETE)//Write data
+			{
 				SetErrorByte(CTRLER_ERROR_E2PROM_BREAK);
-				break;	//写入异常
+				break;	//Write exception
 			}
 			WriteAddr += 4;
 			pBuffer ++;
 			ClearErrorByte(CTRLER_ERROR_E2PROM_BREAK);
-		} 
+		}
 	}
-    FLASH_DataCacheCmd(ENABLE);	//FLASH擦除结束,开启数据缓存
-	FLASH_Lock();//上锁
+    FLASH_DataCacheCmd(ENABLE);	//After FLASH erase complete, enable data cache
+	FLASH_Lock();//Lock
 } 
-//WriteAddr:起始地址(此地址必须为4的倍数!!)
-//pBuffer:数据指针
-//NumToWrite:字(32位)数(就是要写入的32位数据的个数.) 
+//WriteAddr: start address (this address must be multiple of 4!!)
+//pBuffer: data pointer
+//NumToWrite: word (32-bit) count (number of 32-bit data to write)
 void STMFLASH_Write_byteword(u32 WriteAddr,u8 *pBuffer,u8 NumToWrite)	
 { 
     FLASH_Status status = FLASH_COMPLETE;
 //	u32 addrx=0;
 	u32 endaddr=0;	
-    if (WriteAddr < STM32_FLASH_BASE || WriteAddr % 4) return;	//非法地址
-    
-    FLASH_Unlock();									//解锁 
-    FLASH_DataCacheCmd(DISABLE);//FLASH擦除期间,必须禁止数据缓存
- 		
-//	addrx = WriteAddr;				//写入的起始地址
-	endaddr = WriteAddr + NumToWrite;	//写入的结束地址
-//	if(addrx < 0X1FFF0000)			//只有主存储区,才需要执行擦除操作!!
+    if (WriteAddr < STM32_FLASH_BASE || WriteAddr % 4) return;	//Illegal address
+
+    FLASH_Unlock();									//Unlock
+    FLASH_DataCacheCmd(DISABLE);//During FLASH erase, must disable data cache
+
+//	addrx = WriteAddr;				//Write start address
+	endaddr = WriteAddr + NumToWrite;	//Write end address
+//	if(addrx < 0X1FFF0000)			//Only for main storage area, need to execute erase operation!!
 //	{
-//		while (addrx < endaddr)		//扫清一切障碍.(对非FFFFFFFF的地方,先擦除)
+//		while (addrx < endaddr)		//Scan entire sector (for non-FFFFFFFF locations, erase first)
 //		{
-//			if (STMFLASH_ReadWord(addrx) != 0XFFFFFFFF)//有非0XFFFFFFFF的地方,要擦除这个扇区
-//			{   
-//				status = FLASH_EraseSector(STMFLASH_GetFlashSector(addrx),VoltageRange_3);//VCC=2.7~3.6V之间!!
-//				if (status!=FLASH_COMPLETE) break;	//发生错误了
+//			if (STMFLASH_ReadWord(addrx) != 0XFFFFFFFF)//If there are non-0XFFFFFFFF locations, need to erase sector
+//			{
+//				status = FLASH_EraseSector(STMFLASH_GetFlashSector(addrx),VoltageRange_3);//VCC=2.7~3.6V range!!
+//				if (status!=FLASH_COMPLETE) break;	//Erase operation failed
 //			} 
 //            else 
 //                addrx += 4;
@@ -231,43 +231,43 @@ void STMFLASH_Write_byteword(u32 WriteAddr,u8 *pBuffer,u8 NumToWrite)
 //	}
 	if(status == FLASH_COMPLETE)
 	{
-		while (WriteAddr < endaddr)//写数据
+		while (WriteAddr < endaddr)//Write data
 		{
-			if (FLASH_ProgramByte(WriteAddr, *pBuffer) != FLASH_COMPLETE)//写入数据
-			{ 
-				break;	//写入异常
+			if (FLASH_ProgramByte(WriteAddr, *pBuffer) != FLASH_COMPLETE)//Write data
+			{
+				break;	//Write exception
 			}
 			WriteAddr += 1;
 			pBuffer ++;
-		} 
+		}
 	}
-    FLASH_DataCacheCmd(ENABLE);	//FLASH擦除结束,开启数据缓存
-	FLASH_Lock();//上锁
+    FLASH_DataCacheCmd(ENABLE);	//After FLASH erase complete, enable data cache
+	FLASH_Lock();//Lock
 } 
-//从指定地址开始读出指定长度的数据
-//ReadAddr:起始地址
-//pBuffer:数据指针
-//NumToRead:字(4位)数
+//Read specified length of data starting from specified address
+//ReadAddr: start address
+//pBuffer: data pointer
+//NumToRead: word (4-byte) count
 void STMFLASH_Read(u32 ReadAddr,u32 *pBuffer,u32 NumToRead)   	
 {
 	u32 i;
 	for(i=0;i<NumToRead;i++)
 	{
-		pBuffer[i]=STMFLASH_ReadWord(ReadAddr);//读取4个字节.
-		ReadAddr+=4;//偏移4个字节.	
+		pBuffer[i]=STMFLASH_ReadWord(ReadAddr);//Read 4 bytes
+		ReadAddr+=4;//Offset 4 bytes	
 	}
 }
-//从指定地址开始读出指定长度的数据
-//ReadAddr:起始地址
-//pBuffer:数据指针
-//NumToRead:字(4位)数
+//Read specified length of data starting from specified address
+//ReadAddr: start address
+//pBuffer: data pointer
+//NumToRead: word (4-byte) count
 void STMFLASH_Read_Word(u32 ReadAddr,s32 *pBuffer,u32 NumToRead)   	
 {
 	u32 i;
 	for(i = 0; i < NumToRead; i ++)
 	{
-		pBuffer[i] = STMFLASH_ReadWord(ReadAddr);//读取4个字节.
-		ReadAddr += 4;                          //偏移4个字节.	
+		pBuffer[i] = STMFLASH_ReadWord(ReadAddr);//Read 4 bytes
+		ReadAddr += 4;                          //Offset 4 bytes	
 	}
 }
 /*******************************************************************************
@@ -277,7 +277,7 @@ void STMFLASH_Read_Word(u32 ReadAddr,s32 *pBuffer,u32 NumToRead)
 * Output        : 
 * Return        : 
 *******************************************************************************/
-void UpdateCmdArrayFunc(void)//恢复出厂默认设置
+void UpdateCmdArrayFunc(void)//Restore to default parameters
 {
 	u16 i = 0;
     for (i = 0; i < HL_CMDMAP_LEN; i ++)
@@ -286,8 +286,8 @@ void UpdateCmdArrayFunc(void)//恢复出厂默认设置
     }   
     
     g_HLCmdMap[0] = 0x5A5A5A5A;
-    
-    /*使能*/
+
+    /*Enable*/
 //    g_HLCmdMap[HL_ENA_PRS_LOOP] = 0;
 //    g_HLCmdMap[HL_ENA_PWR_LOOP] = 0;
     g_HLCmdMap[HL_ENA_LEAKEAGE] = 0;
@@ -302,7 +302,7 @@ void UpdateCmdArrayFunc(void)//恢复出厂默认设置
     g_HLCmdMap[HL_PRD_ANG_FDB_D] = User_Parameter.TimPeriod->g_u16_Ang_Fdb_D_Period;
     g_HLCmdMap[HL_PRD_PRS_FDB_D] = User_Parameter.TimPeriod->g_u16_Prs_Fdb_D_Period;
 
-    /*☆   这是浮点数，注意精度*/
+    /*Note: These are floating point numbers, pay attention to precision*/
     g_HLCmdMap[HL_TIM_C_ANG_REF_FILTER] = (s32)(User_Parameter.LowPassFilterTimConst->g_f32_Ang_Ref_FilterTimPara * 10000);
     g_HLCmdMap[HL_TIM_C_ANG_FDB_FILTER] = (s32)(User_Parameter.LowPassFilterTimConst->g_f32_Ang_Fdb_FilterTimPara * 10000);
     g_HLCmdMap[HL_TIM_C_PRS_FDB_FILTER] = (s32)(User_Parameter.LowPassFilterTimConst->g_f32_Prs_Fdb_FilterTimPara * 10000);
@@ -316,7 +316,7 @@ void UpdateCmdArrayFunc(void)//恢复出厂默认设置
     g_HLCmdMap[HL_CTRL_PRS_COMP_ANG_RATIO] = (s32)(User_Parameter.g_f32_PrsCompAngRatio * 10000);
     g_HLCmdMap[HL_CTRL_LKGE_COMP_RATIO]= (s32)(User_Parameter.g_f32_leakage_compensation * 10000);
     
-    /*PWM参数*/
+    /*PWM parameters*/
     g_HLCmdMap[HL_PI_ANG_P] = Angle_Loop.Kp;
     g_HLCmdMap[HL_PI_ANG_I] = Angle_Loop.Ki;
     g_HLCmdMap[HL_PI_ANG_ERR_D] = Angle_Loop.Kd;
@@ -402,7 +402,7 @@ void InitUserParaProcess(void)
     #if (1)
 	if(g_HLCmdMap[0] == 0x5A5A5A5A)
 	{
-        /*使能*/
+        /*Enable*/
 //        User_Parameter.PpqEna->PrsLoop_Ena = g_HLCmdMap[HL_ENA_PRS_LOOP];
 //        User_Parameter.PpqEna->PwrLoop_Ena = g_HLCmdMap[HL_ENA_PWR_LOOP];
         User_Parameter.PpqEna->AngLeak_Ena = g_HLCmdMap[HL_ENA_LEAKEAGE];
@@ -419,7 +419,7 @@ void InitUserParaProcess(void)
         User_Parameter.TimPeriod->g_u16_Ang_Fdb_D_Period = g_HLCmdMap[HL_PRD_ANG_FDB_D];
         User_Parameter.TimPeriod->g_u16_Prs_Fdb_D_Period = g_HLCmdMap[HL_PRD_PRS_FDB_D];
         
-        /*☆   这是浮点数，注意精度*/
+        /*Note: These are floating point numbers, pay attention to precision*/
         User_Parameter.LowPassFilterTimConst->g_f32_Ang_Ref_FilterTimPara = (float)g_HLCmdMap[HL_TIM_C_ANG_REF_FILTER] / 10000;
         User_Parameter.LowPassFilterTimConst->g_f32_Ang_Fdb_FilterTimPara = (float)g_HLCmdMap[HL_TIM_C_ANG_FDB_FILTER] / 10000;
         User_Parameter.LowPassFilterTimConst->g_f32_Prs_Fdb_FilterTimPara = (float)g_HLCmdMap[HL_TIM_C_PRS_FDB_FILTER] / 10000;
@@ -464,7 +464,7 @@ void InitUserParaProcess(void)
         User_Parameter.TimPeriod->g_u16_Ang_Fdb_D_Period = ANG_D_FILTER_CNT;
         User_Parameter.TimPeriod->g_u16_Prs_Fdb_D_Period = PRS_D_FILTER_CNT;
         
-        /*☆   这是浮点数，注意精度*/
+        /*Note: These are floating point numbers, pay attention to precision*/
         User_Parameter.LowPassFilterTimConst->g_f32_Ang_Ref_FilterTimPara = ANG_REF_FILTER_TIM_CONST;
         User_Parameter.LowPassFilterTimConst->g_f32_Ang_Fdb_FilterTimPara = ANG_FDB_FILTER_TIM_CONST;
         User_Parameter.LowPassFilterTimConst->g_f32_Prs_Fdb_FilterTimPara = PRS_FDB_FILTER_TIM_CONST;
@@ -507,7 +507,7 @@ void InitUserParaProcess(void)
         User_Parameter.TimPeriod->g_u16_Ang_Fdb_D_Period = ANG_D_FILTER_CNT;
         User_Parameter.TimPeriod->g_u16_Prs_Fdb_D_Period = PRS_D_FILTER_CNT;
         
-        /*☆   这是浮点数，注意精度*/
+        /*Note: These are floating point numbers, pay attention to precision*/
         User_Parameter.LowPassFilterTimConst->g_f32_Ang_Ref_FilterTimPara = ANG_REF_FILTER_TIM_CONST;
         User_Parameter.LowPassFilterTimConst->g_f32_Ang_Fdb_FilterTimPara = ANG_FDB_FILTER_TIM_CONST;
         User_Parameter.LowPassFilterTimConst->g_f32_Prs_Fdb_FilterTimPara = PRS_FDB_FILTER_TIM_CONST;
@@ -540,41 +540,41 @@ void InitUserParaProcess(void)
         User_Parameter.SysPara->u16Valve_MidPosi_Dac = VALVE_MID_POSI_VAL;
     #endif
     
-     /*更新PWM参数*/
+     /*Update PWM parameters*/
     Update_PWM_PidPara(&Pwm_Output_A, &Pwm_Output_B, &Angle_Loop, &Pressure_Loop);
 }
 
-FLASH_Status ota_flash_erase(u32 addrx)//备份程序放在0x0804 0000  主程序放在0x0802 0000
+FLASH_Status ota_flash_erase(u32 addrx)//Application program area 0x0804 0000, bootloader area 0x0802 0000
 {
 	FLASH_Status status = FLASH_COMPLETE;
-	FLASH_Unlock();									//解锁 
-	FLASH_DataCacheCmd(DISABLE);//FLASH擦除期间,必须禁止数据缓存
-	status = FLASH_EraseSector(STMFLASH_GetFlashSector(addrx),VoltageRange_3);//VCC=2.7~3.6V之间!!
-	FLASH_DataCacheCmd(ENABLE);	//FLASH擦除结束,开启数据缓存
-	FLASH_Lock();//上锁
+	FLASH_Unlock();									//Unlock
+	FLASH_DataCacheCmd(DISABLE);//During FLASH erase, must disable data cache
+	status = FLASH_EraseSector(STMFLASH_GetFlashSector(addrx),VoltageRange_3);//VCC=2.7~3.6V range!!
+	FLASH_DataCacheCmd(ENABLE);	//After FLASH erase complete, enable data cache
+	FLASH_Lock();//Lock
 	return status;
 }
 
-FLASH_Status ota_write_byteword(u32 WriteAddr,u8 *pBuffer,u32 NumToWrite)//写一个Byte到flash
+FLASH_Status ota_write_byteword(u32 WriteAddr,u8 *pBuffer,u32 NumToWrite)//Write one Byte to flash
 {
-	u32 endaddr=0;	
+	u32 endaddr=0;
 	FLASH_Status status = FLASH_COMPLETE;
-	FLASH_Unlock();									//解锁 
-	FLASH_DataCacheCmd(DISABLE);//FLASH擦除期间,必须禁止数据缓存
+	FLASH_Unlock();									//Unlock
+	FLASH_DataCacheCmd(DISABLE);//During FLASH erase, must disable data cache
 	endaddr=WriteAddr+NumToWrite;
-	while(WriteAddr<endaddr)//写数据
+	while(WriteAddr<endaddr)//Write data
 	{
 		status = FLASH_ProgramByte(WriteAddr,*pBuffer);
-		if(status!=FLASH_COMPLETE)//写入数据
-		{ 
-			break;	//写入异常
+		if(status!=FLASH_COMPLETE)//Write data
+		{
+			break;	//Write exception
 		}
 		WriteAddr+=1;
 		pBuffer++;
-	} 
-		
-	FLASH_DataCacheCmd(ENABLE);	//FLASH擦除结束,开启数据缓存
-	FLASH_Lock();//上锁
+	}
+
+	FLASH_DataCacheCmd(ENABLE);	//After FLASH erase complete, enable data cache
+	FLASH_Lock();//Lock
 	return status;
 }
 /*******************************************************************************

@@ -7,9 +7,9 @@
 
 void Update_CtrlPara(void);
 
-typedef struct _USB_Frame {				//数据发送帧队列结构体
-	s32 len;													//帧长度
-	u8 buf[TX_FRMBUF_SIZE];			//帧数据
+typedef struct _USB_Frame {				//Data send frame queue structure
+	s32 len;													//Frame length
+	u8 buf[TX_FRMBUF_SIZE];			//Frame data
 } USB_Frame;
 
 u8 g_u8_UploadInfoArray[TX_FRMBUF_SIZE] = {0};
@@ -18,19 +18,19 @@ extern  s32 g_HLCmdMap[HL_CMDMAP_LEN];
 extern  u32 g_PCRdCmd[HL_RDCMD_LEN];
 extern  u16 g_PCSetCmd[HL_WRCMD_LEN];
 
-/* CRC16 余式表 */
+/* CRC16 lookup table */
 static uint16_t crctalbeabs[] = { 
 	0x0000, 0xCC01, 0xD801, 0x1400, 0xF001, 0x3C00, 0x2800, 0xE401, 
 	0xA001, 0x6C00, 0x7800, 0xB401, 0x5000, 0x9C01, 0x8801, 0x4400 
 };
 
 /*!
- *  功  能: CRC16校验
- *  param1: 指向要校验的数据的指针
- *  param2: 要校验的数据的长度
- *  retval: 校验所得到的值，uint16_t 类型
- * 
- *  说  明: 本次CRC校验为查表法，多项式为 x16+x15+x2+1(0x8005)，CRC的初始值为0xFFFF
+ *  Function: CRC16 checksum
+ *  param1: Pointer to data to be verified
+ *  param2: Length of data to be verified
+ *  retval: Checksum value obtained, uint16_t type
+ *
+ *  Description: This CRC check uses lookup table method, polynomial is x16+x15+x2+1(0x8005), CRC initial value is 0xFFFF
  */
 uint16_t Crc16(uint8_t *ptr, uint32_t len) 
 {
@@ -49,10 +49,10 @@ uint16_t Crc16(uint8_t *ptr, uint32_t len)
 }
 /*******************************************************************************
 * Function Name : ParseFrame
-* Description   : USB解析数据
-* Input         : 		
-* Output        : 
-* Return        : 
+* Description   : USB parse data
+* Input         :
+* Output        :
+* Return        :
 *******************************************************************************/
 void ParseFrame(u8 *buf)
 {
@@ -83,14 +83,14 @@ void ParseFrame(u8 *buf)
         case PARA_WRITE:
             memcpy(&g_HLCmdMap[buf[FRM_INDEX]], &buf[FRM_DATA], buf[FRM_LEN]);
             Update_PWM_PidPara(&Pwm_Output_A, &Pwm_Output_B, &Angle_Loop, &Pressure_Loop);
-            Update_CtrlPara();                                                  //更新除PID之外的参数
+            Update_CtrlPara();                                                  //Update parameters other than PID
             buf[FRM_CMD] = PARA_READ;
             USB_PackDataArray(buf, (u32 *)g_HLCmdMap);//USB_PackWRBackDataArray(buf, (u16*)g_HLCmdMap);
             USB_UploadDataPC(buf, g_u8_UploadInfoArray);
         break;
         
         case IAP_BEGIN:
-            memcpy(&m_IAP_FileSize, &buf[FRM_DATA], 4);	//固件大小
+            memcpy(&m_IAP_FileSize, &buf[FRM_DATA], 4);	//Firmware size
             if (IAP_EraseSWFlash(STM32_FLASH_BACKUP_BASE, m_IAP_FileSize + 128) == 0)
             {
                 g_u8_UploadIAPInfoArray[0] = 0;
@@ -126,10 +126,10 @@ void ParseFrame(u8 *buf)
 }
 /*******************************************************************************
 * Function Name : USB_ParseData
-* Description   : USB解析数据
-* Input         : 		
-* Output        : 
-* Return        : 
+* Description   : USB parse data
+* Input         :
+* Output        :
+* Return        :
 *******************************************************************************/
 u16 Scope_s_rxPos = 0;
 void USB_ParseData(u8 *buf, u32 ParseDataLen)
@@ -142,7 +142,7 @@ void USB_ParseData(u8 *buf, u32 ParseDataLen)
 	u16 s_csum = 0;
 	unsigned short temp16 = 0;
 	
-	if(s_bBeginFrame)   //是否开始新的一帧
+	if(s_bBeginFrame)   //Whether to start a new frame
 	{			
         if (s_rxPos > ParseDataLen)
         {
@@ -158,12 +158,12 @@ void USB_ParseData(u8 *buf, u32 ParseDataLen)
         }       
         else
         {            
-            if(s_rxPos == ParseDataLen - 2)        //一帧数据传输完毕
+            if(s_rxPos == ParseDataLen - 2)        //One frame of data transfer complete
             { 
                 temp16 = buf[ParseDataLen - 2] + (buf[ParseDataLen - 1] << 8);
                 s_csum = Crc16(&buf[2],ParseDataLen - 4);
                 if(s_csum == temp16)
-                    ParseFrame(buf);  //解析帧数据
+                    ParseFrame(buf);  //Parse frame data
                 s_bFrameHead1 = s_bBeginFrame = 0;
                 s_rxPos = 0;
                 s_csum = 0;
@@ -242,7 +242,7 @@ void USB_PackDataArray(u8 *Buf, u32 *p)
             if (i % 2 == 0)
             {
                 j++;
-                g_u8_UploadInfoArray[i] = (u8)p[(t_u8_MapIndex + j)];      //低位
+                g_u8_UploadInfoArray[i] = (u8)p[(t_u8_MapIndex + j)];      //Low byte
             }
             else
                 g_u8_UploadInfoArray[i] = p[(t_u8_MapIndex + j)] >> 0x08;
@@ -275,7 +275,7 @@ void USB_PackDataArray(u8 *Buf, u32 *p)
 //            if (i % 2 == 0)
 //            {
 //                j++;
-//                g_u8_UploadInfoArray[i] = (u8)g_HLCmdMap[(t_u8_MapIndex + j)];      //低位
+//                g_u8_UploadInfoArray[i] = (u8)g_HLCmdMap[(t_u8_MapIndex + j)];      //Low byte
 //            }
 //            else
 //                g_u8_UploadInfoArray[i] = g_HLCmdMap[(t_u8_MapIndex + j)] >> 0x08;
