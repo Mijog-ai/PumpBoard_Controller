@@ -23,7 +23,7 @@ void TiltAng_B_FreqShakeFunc(u16 *p);
 void TiltAngleLoop_Func();
 void LimitAngLoopOutput(u16 TiltAngRef,u16 *CurRef,u16 MinCurRef,u16 MaxCurRef);
 =========================================================================================================*/
-float                   g_f32_CurA_Ratio = 0;                                       //µÁ¡˜◊™ªªœµ ˝
+float                   g_f32_CurA_Ratio = 0;                                       // Current conversion coefficient
 float                   g_f32_CurB_Ratio = 0;
 
 u32                     g_u32_PWMOutput_A = 0;
@@ -44,7 +44,7 @@ _SCOPE                  ScopeVal;
 
 
 
-//∑Ω∑®“ª»´æ÷±‰¡ø
+// Define a global variable
 #ifdef WAY_1
 static int16_t last_Cur_B_Ref = 0;
 static int16_t last_offset = 0;
@@ -64,17 +64,17 @@ static u16 last_angle = 0;
 *******************************************************************************/
 #define  ANALOG_OUTPUT_2_CUR_MODE       (0)
 #define  ANALOG_OUTPUT_1_CUR_MODE       (0)     
-#define  ANGLE_SENSOR_CUR_MODE          (0)  		//0°™µÁ—π 1°™µÁ¡˜
+#define  ANGLE_SENSOR_CUR_MODE          (0)  		// 0: Voltage, 1: Current
 #define  PRESSURE_SENSOR_CUR_MODE       (0)
     
-#define  ANGLE_01_SENSOR_CUR_GAIN          (1)  		//0°™0.4±∂ 1°™0.3±∂
+#define  ANGLE_01_SENSOR_CUR_GAIN          (1)  		// 0: 0.4x gain, 1: 0.3x gain
 #define  ANGLE_02_SENSOR_CUR_GAIN          (1)
 #define  PRESSURE_01_SENSOR_CUR_GAIN       (1)
 #define  PRESSURE_02_SENSOR_CUR_GAIN       (1)
 
 void SensorModeChangeFunc()
 {
-	//ƒ£ Ω—°‘Ò
+	// Mode selection
     #if (ANALOG_OUTPUT_2_CUR_MODE == 0x01)
         GPIO_SetBits(ANALOG_OUTPUT_2_MODE_GPIO,ANALOG_OUTPUT_2_MODE_PIN);
     #else
@@ -102,8 +102,8 @@ void SensorModeChangeFunc()
         GPIO_ResetBits(PT_01_SENSOR_MODE_GPIO,PT_01_SENSOR_MODE_PIN);
         GPIO_ResetBits(PT_02_SENSOR_MODE_GPIO,PT_02_SENSOR_MODE_PIN);
     #endif
-	
-	//‘ˆ“Êøÿ÷∆
+
+	// Gain selection
 	#if (ANGLE_01_SENSOR_CUR_GAIN == 0x01)
         GPIO_SetBits(ANGLE_01_SENSOR_GAIN_GPIO,ANGLE_01_SENSOR_GAIN_PIN);
     #else
@@ -131,17 +131,17 @@ void SensorModeChangeFunc()
 }
 /*******************************************************************************
 * Function Name : CurDetectionRangeChose
-* Description   : »∑∂®¡ø≥Ã∫Õ∑≈¥Û±∂ ˝    –°¡ø≥Ã[0, 2A]     ¥Û¡ø≥Ã[0, 3.2A]
+* Description   : Determine range and gain    Small range [0, 2A]     Large range [0, 3.2A]
 * Input         : 
 * Output        : 
 * Return        : 
 *******************************************************************************/
 void CurDetectionRangeChose()
 {
-    u8 t_u8_Scope_A_Chose = 1;          //1-->¥Û¡ø≥Ã     0-->–°¡ø≥Ã
+    u8 t_u8_Scope_A_Chose = 1;          // 1 --> Large range     0 --> Small range
     u8 t_u8_Scope_B_Chose = 1;
-	  //µÁ¥≈∑ßA 
-    if (t_u8_Scope_A_Chose == 1)       //¥Û¡ø≥Ã
+	  // Solenoid A
+    if (t_u8_Scope_A_Chose == 1)       // Large range
     {
         GPIO_SetBits(CUR_A_GAIN_GPIO,CUR_A_GAIN_PIN);
     }
@@ -150,7 +150,7 @@ void CurDetectionRangeChose()
         GPIO_ResetBits(CUR_A_GAIN_GPIO,CUR_A_GAIN_PIN);
     }
     else{}
-    //µÁ¥≈∑ßB 
+    // Solenoid B
     if (t_u8_Scope_B_Chose == 1)
     {
         GPIO_SetBits(CUR_B_GAIN_GPIO,CUR_B_GAIN_PIN);
@@ -160,22 +160,22 @@ void CurDetectionRangeChose()
         GPIO_ResetBits(CUR_B_GAIN_GPIO,CUR_B_GAIN_PIN);
     }
     else{}
-		
-    //∑≈¥Û±∂ ˝—°‘Ò_A
+
+    // Amplification factor selection_A
     if (t_u8_Scope_A_Chose == 0)
-        g_f32_CurA_Ratio = 0.038019f;//’‚∏ˆªπ√ªµ˜
+        g_f32_CurA_Ratio = 0.038019f;// Range not used
     else
         g_f32_CurA_Ratio = 0.071809f;
-    //∑≈¥Û±∂ ˝—°‘Ò_B
+    // Amplification factor selection_B
     if (t_u8_Scope_B_Chose == 0)
-        g_f32_CurB_Ratio = 0.038019f;//’‚∏ˆªπ√ªµ˜
+        g_f32_CurB_Ratio = 0.038019f;// Range not used
     else
         g_f32_CurB_Ratio = 0.071809f;
 }
 
 /*******************************************************************************
 * Function Name : Cal_SolenoidCur
-* Description   : º∆À„ªÒ»°µÁ¥≈∑ßµÁ¡˜
+* Description   : Calculate and obtain solenoid valve current
 * Input         : 
 * Output        : 
 * Return        : 
@@ -198,78 +198,78 @@ void Cal_SolenoidCur()
 *******************************************************************************/
 void TimPeriodCnt_Func()
 {
-    /*Ω«∂»Œ¢∑÷¬À≤®*/
+    /* Angle differential filter */
     if (TimCnt.g_u16_Ang_Fdb_D_Cnt ++ >= User_Parameter.TimPeriod->g_u16_Ang_Fdb_D_Period)
         TimCnt.g_u16_Ang_Fdb_D_Cnt = 0;
-     /*—π¡¶Œ¢∑÷¬À≤®*/
+     /* Pressure differential filter */
     if (TimCnt.g_u16_Prs_Fdb_D_Cnt ++ >= User_Parameter.TimPeriod->g_u16_Prs_Fdb_D_Period)
         TimCnt.g_u16_Prs_Fdb_D_Cnt = 0;
-     /*Ω«∂»ª∑÷‹∆⁄*/
+     /* Angle feedback period */
     if (TimCnt.g_u16_Ang_PI_LOOP_Cnt ++ >= User_Parameter.TimPeriod->g_u16_Ang_PI_LOOP_Period)
         TimCnt.g_u16_Ang_PI_LOOP_Cnt = 0;
-    /*—π¡¶ª∑÷‹∆⁄*/
+    /* Pressure loop calculation */
     if (TimCnt.g_u16_Prs_PI_LOOP_Cnt ++ >= User_Parameter.TimPeriod->g_u16_Prs_PI_LOOP_Period)
         TimCnt.g_u16_Prs_PI_LOOP_Cnt = 0;
-	/*µÁ¡˜ª∑÷‹∆⁄*/
+	/* Current loop calculation */
     if (TimCnt.g_u16_Cur_PI_LOOP_Cnt ++ >= User_Parameter.TimPeriod->g_u16_Cur_PI_LOOP_Period)
         TimCnt.g_u16_Cur_PI_LOOP_Cnt = 0;
 }
 
 /*******************************************************************************
-* Function Name : 
-* Description   : ∑¥¿°–≈∫≈±ÍÁ€
+* Function Name :
+* Description   : Sensor signal per unit
 * Input         : 
 * Output        : 
 * Return        : 
 *******************************************************************************/
 u16 FeedbackSignalPerUnitFunc(
-    u16 input_value,    
-    u16 sensor_mid,     
-    u16 sensor_max,     
-    u16 output_mid      // ÷–º‰÷µ∂‘”¶µƒ ‰≥ˆ÷µ
+    u16 input_value,
+    u16 sensor_mid,
+    u16 sensor_max,
+    u16 output_mid      // Output value corresponding to midpoint
 )
-{	
-    if(sensor_max <= sensor_mid) return 0; // »∑±£◊Ó¥Û>÷–º‰÷µ
-    
+{
+    if(sensor_max <= sensor_mid) return 0; // Ensure max > midpoint
+
     s32 raw = (s32)input_value;
-    const s32 output_max = 5000;         // πÃ∂®◊Ó¥Û ‰≥ˆ÷µ
-    
+    const s32 output_max = 5000;         // Fixed maximum output value
+
     float slope = (float)(output_max - output_mid) / (sensor_max - sensor_mid);
-    
-    // ÷¥––œﬂ–‘”≥…‰º∆À„
+
+    // Perform linear mapping calculation
     s32 output = output_mid + (raw - sensor_mid) * slope;
-    
-    output = (output > output_max) ? output_max : (output < 0) ? 0 : output;    // œﬁ÷∆œ¬œﬁŒ™0
+
+    output = (output > output_max) ? output_max : (output < 0) ? 0 : output;    // Limit output to 0
             
     return (u16)output;
 }
 
 /*******************************************************************************
-* Function Name : 
-* Description   : ∑¥¿°–≈∫≈±ÍÁ€,÷–º‰÷µ±Í∂®
+* Function Name :
+* Description   : Sensor signal per unit, midpoint fixed
 * Input         : 
 * Output        : 
 * Return        : 
 *******************************************************************************/
 
 u16 FeedbackSignalPerUnitFunc_AngMID(
-    u16 input_value,    
-    u16 sensor_mid,     
-    u16 sensor_max,     
-    u16 output_mid      // ÷–º‰÷µ∂‘”¶µƒ ‰≥ˆ÷µ
+    u16 input_value,
+    u16 sensor_mid,
+    u16 sensor_max,
+    u16 output_mid      // Output value corresponding to midpoint
 )
 {
-    if(sensor_max <= sensor_mid) return 0; // »∑±£◊Ó¥Û>÷–º‰÷µ
-    
+    if(sensor_max <= sensor_mid) return 0; // Ensure max > midpoint
+
     s32 raw = (s32)input_value;
-    const s32 output_max = 5000;//10000;         // πÃ∂®◊Ó¥Û ‰≥ˆ÷µ
-    
+    const s32 output_max = 5000;//10000;         // Fixed maximum output value
+
     float slope = (float)(output_max - output_mid) / (sensor_max - sensor_mid);
-    
-    // ÷¥––œﬂ–‘”≥…‰º∆À„
+
+    // Perform linear mapping calculation
     s32 output = output_mid + (raw - sensor_mid) * slope;
-    
-    output = (output > output_max) ? output_max : (output < 0) ? 0 : output;    // œﬁ÷∆œ¬œﬁŒ™0
+
+    output = (output > output_max) ? output_max : (output < 0) ? 0 : output;    // Limit output to 0
             
     return (u16)output;
 }
@@ -457,10 +457,10 @@ void Update_PWM_PidPara(pid_location_t *Cur_A, pid_location_t *Cur_B, pid_locati
 u16 g_u16_AngSwinging_Freq_Angle = 400;
 float g_f32_AngSwinging_Amp_Angle = 0.3;
 void TiltAng_A_FreqShakeFunc(u32 *p)
-{    
+{
         static u16 u16CycleCnt = 0;
-        float f32ShakeAmpRatio = 0;         //2%µƒ≤¸’Ò∑˘∂»
-        u16 u16AngShakeCycle = 0;          //1000ms
+        float f32ShakeAmpRatio = 0;         // 2% fluctuation amplitude
+        u16 u16AngShakeCycle = 0;          // 1000ms
         
         u16AngShakeCycle = 10000 / g_u16_AngSwinging_Freq_Angle;
         f32ShakeAmpRatio = g_f32_AngSwinging_Amp_Angle;
@@ -489,8 +489,8 @@ void TiltAng_B_FreqShakeFunc(u32 *p)
 {
     #ifdef PPQ_1
         static u16 u16CycleCnt = 0;
-        float f32ShakeAmpRatio = 0.1;         //2%µƒ≤¸’Ò∑˘∂»
-        u16 u16AngShakeCycle = 0;          //1000ms
+        float f32ShakeAmpRatio = 0.1;         // 2% fluctuation amplitude
+        u16 u16AngShakeCycle = 0;          // 1000ms
         
         u16AngShakeCycle = 10000 / User_Parameter.AngSwingPara->g_u16_AngSwinging_Freq;
         f32ShakeAmpRatio = User_Parameter.AngSwingPara->g_f32_AngSwinging_Amp;
@@ -513,19 +513,15 @@ void TiltAng_B_FreqShakeFunc(u32 *p)
    
 /*******************************************************************************
 * Function Name : TiltAngleLoop_Func
-* Description   : 
-                    M = Vg * °˜P / (20 * ¶– * “∫—πœµÕ≥–ß¬ )
-                    ∆‰÷–£∫MŒ™≈§æÿ
-                          VgŒ™≈≈¡ø
-                          °˜PŒ™—π¡¶÷µ
-                            “∫—π–ß¬ ‘›∂®90%
-* Input         : 
-* Output        : 
-* Return        : 
+* Description   :
+                    // Calculation formula: M = Vg * ÔøΩÔøΩP / (20 * ÔøΩÔøΩ * Hydraulic system efficiency), where M is torque, Vg is displacement, ÔøΩÔøΩP is pressure value, hydraulic efficiency is approximately 90%
+* Input         :
+* Output        :
+* Return        :
 *******************************************************************************/
-#define LEAKAGECOMP_ENA         (0)                                                     //–π¬∂≤π≥•
-#define PRES_D_FDB_TO_ANG_ENA   (0)                                                     //—π¡¶Œ¢∑÷≤π≥•
-#define POWER_LIMIT             (0)                                                     //π¶¬ œﬁ÷∆
+#define LEAKAGECOMP_ENA         (0)                                                     // Leakage compensation
+#define PRES_D_FDB_TO_ANG_ENA   (0)                                                     // Pressure differential compensation
+#define POWER_LIMIT             (0)                                                     // Power limit
 #define PRESSURE_LOOP           (0)
 
 u8  g_u8_ExchangeFlg = 0;
@@ -579,17 +575,18 @@ void TiltAngleLoop_Func()
     u16 t_u16_TiltAngRef, t_u16_TiltAngRef_PC = 0;
     float t_f32_Pump_CC = 0;
 
-    
-    /*≈≈¡ø∏¯∂®£¨◊Ó–°∑¢…˙∆˜*/
+
+
+    /* Check if current is less than dead zone */
     if (User_Parameter.PpqEna->PumpStrt_Ena == 1)
-    {   
-        /*Õ®π˝—π¡¶Œ¢∑÷∂‘ ‰»ÎµƒΩ«∂»Ω¯––Ã·«∞Ω√’˝*/
+    {
+        /* Forward compensation of desired angle through pressure differential */
         g_s16_PrsCompAngVal = (s16)(User_Parameter.g_f32_PrsCompAngRatio * DetectorFdbVal.g_s32_PressureFdb_D);
         Limit_Q15(&g_s16_PrsCompAngVal, -2000, 2000);
 
-        t_s16_TiltAngRef = (s16)(InstructionSet.TiltAngRef) - g_s16_PrsCompAngVal;   //100 «Œ™¡À√÷≤πŒ»Ã¨ŒÛ≤Ó  
-      
-        //–π¬∂≤π≥•
+        t_s16_TiltAngRef = (s16)(InstructionSet.TiltAngRef) - g_s16_PrsCompAngVal;   //100ÔøΩÔøΩŒ™ÔøΩÔøΩÔøΩ÷≤ÔøΩÔøΩÔøΩÃ¨ÔøΩÔøΩÔøΩ
+
+        // Leakage compensation
         if (User_Parameter.PpqEna->AngLeak_Ena)
         {
             t_s16_TiltAngRef += (s16)(t_s16_TiltAngRef * DetectorFdbVal.g_f32_PressureFdb * User_Parameter.g_f32_leakage_compensation);
@@ -601,17 +598,17 @@ void TiltAngleLoop_Func()
         {
             if (DetectorFdbVal.g_f32_PressureFdb != 0)
             {
-                t_f32_Pump_CC = InstructionSet.g_f32_TorqueLimt * User_Parameter.g_f32TorqueRatio / DetectorFdbVal.g_f32_PressureFdb;		//54.5867f			//º∆À„π¶¬ œﬁ÷∆µƒ≈≈¡ø
+                t_f32_Pump_CC = InstructionSet.g_f32_TorqueLimt * User_Parameter.g_f32TorqueRatio / DetectorFdbVal.g_f32_PressureFdb;		//54.5867f			//ÔøΩÔøΩÔøΩ„π¶ÔøΩÔøΩÔøΩÔøΩÔøΩ∆µÔøΩÔøΩÔøΩÔøΩÔøΩ
                 Limit_f32(&t_f32_Pump_CC, (float)User_Parameter.SysPara->u16PumpCC_MIN, (float)User_Parameter.SysPara->u16PumpCC_MAX);    
-                s_u16_TiltAngRef_PwrLmt = (u16)((float)User_Parameter.SysPara->u16AngPerUnitScope * t_f32_Pump_CC / User_Parameter.SysPara->u16PumpCC_MAX);                          //◊™ªªµΩ0~10000
+                s_u16_TiltAngRef_PwrLmt = (u16)((float)User_Parameter.SysPara->u16AngPerUnitScope * t_f32_Pump_CC / User_Parameter.SysPara->u16PumpCC_MAX);                          //◊™ÔøΩÔøΩÔøΩÔøΩ0~10000
 			}
             else
             {
                 s_u16_TiltAngRef_PwrLmt = User_Parameter.SysPara->u16AngPerUnitScope;
             }
             t_u16_TiltAngRef = s_u16_TiltAngRef_PwrLmt < t_u16_TiltAngRef_PC ? s_u16_TiltAngRef_PwrLmt : t_u16_TiltAngRef_PC;
-            
-            /*∂‘∞⁄Ω«÷∏¡ÓΩ¯––¬À≤®*/
+
+            /* Filter the swing angle command */
             LowPassFilterFunc(&s_f32_AngRef, (float)t_u16_TiltAngRef, User_Parameter.LowPassFilterTimConst->g_f32_Pwr_Ref_FilterTimPara);//0.005f);
             t_u16_TiltAngRef = (u16)s_f32_AngRef;
         }
@@ -635,10 +632,10 @@ void TiltAngleLoop_Func()
 		{
 			s16_PrsOffset = InstructionSet.g_u16_PerUnitPrsVal * Prs_offset_a + Prs_offset_b;
             
-			if (TimCnt.g_u16_Prs_PI_LOOP_Cnt == 0) 
+			if (TimCnt.g_u16_Prs_PI_LOOP_Cnt == 0)
 			{
 
-				s_s16_PrsLoopOutput_OffsetCur = Pressure_PID_Regulator(InstructionSet.g_u16_PerUnitPrsVal+s16_PrsOffset,(u16)DetectorFdbVal.g_u32_PressureFdb, &Pressure_Loop);//…Ë∂®÷µπÃ∂®∆´≤Ó
+				s_s16_PrsLoopOutput_OffsetCur = Pressure_PID_Regulator(InstructionSet.g_u16_PerUnitPrsVal+s16_PrsOffset,(u16)DetectorFdbVal.g_u32_PressureFdb, &Pressure_Loop);// Set value fixed offset
 
 			}
 			s_s16_PrsLoopOutput_OffsetCur = (s_s16_PrsLoopOutput_OffsetCur < t_u16_TiltAngRef) ? s_s16_PrsLoopOutput_OffsetCur : t_u16_TiltAngRef;
@@ -654,8 +651,8 @@ void TiltAngleLoop_Func()
 		}
 		else
 		{
-			s_s16_PrsLoopOutput_OffsetCur = t_u16_TiltAngRef; 
-			// 3) Ω«∂»ª∑£®±£≥÷‘≠¬ﬂº≠£©
+			s_s16_PrsLoopOutput_OffsetCur = t_u16_TiltAngRef;
+			// Angle loop uses original logic:
 			if (TimCnt.g_u16_Ang_PI_LOOP_Cnt == 0)
 			{
 				s_s16_AngLoopOutput_OffsetCur = Angle_PID_Regulator(
@@ -694,9 +691,9 @@ void TiltAngleLoop_Func()
 		}
 		#endif
 	}
-    /*===============◊Ó÷’ ‰≥ˆ========================*/
-        
-    //∂‘ABµÁ¡˜∏¯∂®£¨“≤Ω¯––¬À≤®  
+    /* ===============Current closed loop======================== */
+
+    // Low-pass filter for AB current reference
     Cur_A_B_RefFilterFunc(s_s16_Cur_B_Ref);
     TiltAng_B_FreqShakeFunc(&g_u32_PWMOutput_B);
     pwm_output_A_B_process();
@@ -739,7 +736,7 @@ u8 LimitAngLoopOutput(u16 TiltAngRef,u16 *CurRef,u16 MinCurRef,u16 MaxCurRef,u16
        if (s_u16_500ms_DlyCnt <= 200)
        {
             s_u16_500ms_DlyCnt ++;
-            //œﬁ∑˘£¨µÁ¡˜‘ˆº”£¨œﬁ÷∆…œœﬁ£ª∑Ò‘Ú£¨œﬁ÷∆œ¬œﬁ
+            // Limit output: limit increase, do not limit decrease, maintain output stability
             if (*CurRef > s_u16_PreCurRef)
             {
                 if (*CurRef >= MaxCurRef)
@@ -840,7 +837,7 @@ u8 BUS_BREAK = 0x01;
 
 void UpdateMapCmdData(pid_location_t *Ang, pid_location_t *Prs)
 {
-    /*…œŒªª˙ ˝æ›∂¡»°*/
+    /* Unit data reading */
     g_PCRdCmd[HL_INF_SW_VERS] = (u32)SW_VERS;
     g_PCRdCmd[HL_INF_ANG_ADC_FDB] = (u32)ScopeVal.g_f32_Filter_SwivelAngle;    
     g_PCRdCmd[HL_INF_PRS_ADC_FDB] = (u32)ScopeVal.g_f32_Filter_PressureData;
@@ -903,8 +900,8 @@ void Update_CtrlPara()
     User_Parameter.TimPeriod->g_u16_Prs_Err_D_Period = g_HLCmdMap[HL_PRD_PRS_ERR_D];
     User_Parameter.TimPeriod->g_u16_Ang_Fdb_D_Period = g_HLCmdMap[HL_PRD_ANG_FDB_D];
     User_Parameter.TimPeriod->g_u16_Prs_Fdb_D_Period = g_HLCmdMap[HL_PRD_PRS_FDB_D];
-    
-    /*°Ó   ’‚ «∏°µ„ ˝£¨◊¢“‚æ´∂»*/
+
+    /* Note: This is a floating point number, pay attention to precision */
     User_Parameter.LowPassFilterTimConst->g_f32_Ang_Ref_FilterTimPara = (float)g_HLCmdMap[HL_TIM_C_ANG_REF_FILTER] / 10000;
     User_Parameter.LowPassFilterTimConst->g_f32_Ang_Fdb_FilterTimPara = (float)g_HLCmdMap[HL_TIM_C_ANG_FDB_FILTER] / 10000;
     User_Parameter.LowPassFilterTimConst->g_f32_Prs_Fdb_FilterTimPara = (float)g_HLCmdMap[HL_TIM_C_PRS_FDB_FILTER] / 10000;
