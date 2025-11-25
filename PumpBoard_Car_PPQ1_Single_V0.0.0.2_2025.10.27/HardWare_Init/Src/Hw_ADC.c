@@ -3,11 +3,11 @@
 #include "Hw_ADC.h"
 /*******************************************************************************
 * Function Name : Adc1_Analog_Input_Init()
-* Description   : ADC初始化
-                407有2个DMA控制器，每个DMA有8个数据流，每个数据流又可以管理8个通道，每个通道之间靠仲裁机制
-* Input         : 
-* Output        : 
-* Return        : 
+* Description   : ADC initialization
+                407 has 2 DMA controllers, each DMA has 8 streams, each stream has multiple channels that can manage 8 channels, and there is almost no conflict between each channel
+* Input         :
+* Output        :
+* Return        :
 *******************************************************************************/
 
 void Adc1_Analog_Input_Init(void)
@@ -42,21 +42,21 @@ void Adc1_Analog_Input_Init(void)
     DMA_Init(ADC_DMA, &DMA_InitStructure);
     DMA_Cmd(ADC_DMA, ENABLE);
 
-    //2.初始化gpio    
-    GPIO_InitStructure.GPIO_Pin = ANALOG_02_OUTPUT_CHECK_PIN;    
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;                                                        //模拟输出2检测
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;                                                   //不带上下拉
-    GPIO_Init(GPIOA, &GPIO_InitStructure);                                                              //初始化  
+    //2. Initialize gpio
+    GPIO_InitStructure.GPIO_Pin = ANALOG_02_OUTPUT_CHECK_PIN;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;                                                        //Analog input pin 2
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;                                                   //No pull-up/pull-down
+    GPIO_Init(GPIOA, &GPIO_InitStructure);                                                              //Initialize
 
-	GPIO_InitStructure.GPIO_Pin = ANALOG_01_OUTPUT_CHECK_PIN;    
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;                                                        //模拟输出1检测
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;                                                   //不带上下拉
-    GPIO_Init(GPIOC, &GPIO_InitStructure); 
+	GPIO_InitStructure.GPIO_Pin = ANALOG_01_OUTPUT_CHECK_PIN;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;                                                        //Analog input pin 1
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;                                                   //No pull-up/pull-down
+    GPIO_Init(GPIOC, &GPIO_InitStructure);
 
-    GPIO_InitStructure.GPIO_Pin = SENSOR_OVER_CURRENT_PIN | CURRENT_A_CHECK_PIN | CURRENT_B_CHECK_PIN;    
+    GPIO_InitStructure.GPIO_Pin = SENSOR_OVER_CURRENT_PIN | CURRENT_A_CHECK_PIN | CURRENT_B_CHECK_PIN;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;                                                        //
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;                                                   //不带上下拉
-    GPIO_Init(GPIOE, &GPIO_InitStructure);                                                              //初始化  
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;                                                   //No pull-up/pull-down
+    GPIO_Init(GPIOE, &GPIO_InitStructure);                                                              //Initialize  
 
     /* ADC Common Init **********************************************************/
     ADC_CommonInitStructure.ADC_Mode = ADC_Mode_Independent;
@@ -93,5 +93,5 @@ void Adc1_Analog_Input_Init(void)
     /* Enable ADC1 */
     ADC_Cmd(ADC1, ENABLE);
 
-    ADC_SoftwareStartConv(ADC1);//直接启动
+    ADC_SoftwareStartConv(ADC1);//Direct start conversion
 }
