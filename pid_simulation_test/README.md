@@ -61,16 +61,45 @@ Use the sliders to adjust:
 
 Watch how the system responds immediately to your changes!
 
+#### 3. Cascade PID Tuning Tool (Three-Loop Control)
+Two versions available - choose based on your performance needs:
+
+**Standard Version** (Matplotlib-based):
+```bash
+python interactive_tuning_cascade.py
+```
+
+**High-Performance Version** (PyQt5-based) ⚡ **RECOMMENDED**:
+```bash
+python interactive_tuning_cascade_pyqt5.py
+```
+
+The PyQt5 version is much faster and more responsive!
+
+Features:
+- Three correlated control loops: Pressure → Angle → Current
+- Real-time visualization of cascade effects
+- Tab-based interface for easy loop selection
+- Toggle between CASCADE and INDEPENDENT modes
+- Based on actual PumpBoard controller structure
+
+Perfect for understanding:
+- How cascade control works
+- Loop interaction and timing
+- Multi-loop PID tuning strategies
+
 ## 📁 Project Structure
 
 ```
 pid_simulation_test/
-├── README.md                   # This file
-├── requirements.txt            # Python dependencies
-├── pid_controller.py          # PID controller implementation
-├── plant_models.py            # Different systems to control
-├── simulation.py              # Pre-configured simulation examples
-└── interactive_tuning.py      # Interactive tuning tool with sliders
+├── README.md                          # This file
+├── requirements.txt                   # Python dependencies
+├── pid_controller.py                  # PID controller implementation
+├── plant_models.py                    # Different systems to control
+├── simulation.py                      # Pre-configured simulation examples
+├── interactive_tuning.py              # Interactive tuning tool with sliders
+├── interactive_tuning_cascade.py      # Cascade PID tuner (matplotlib)
+└── interactive_tuning_cascade_pyqt5.py # Cascade PID tuner (PyQt5, faster!) ⚡
 ```
 
 ## 🎯 Available Plant Models
