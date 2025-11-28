@@ -231,11 +231,6 @@ class CascadePIDTunerPyQt5(QtWidgets.QMainWindow):
         # Control mode: 'cascade' or 'independent'
         self.cascade_mode = True
 
-        # Update timer to debounce slider changes
-        self.update_timer = QtCore.QTimer()
-        self.update_timer.setSingleShot(True)
-        self.update_timer.timeout.connect(self.update_simulation)
-
         # Run initial simulation
         self.run_simulation()
 
@@ -351,10 +346,12 @@ class CascadePIDTunerPyQt5(QtWidgets.QMainWindow):
         self.tabs = QtWidgets.QTabWidget()
 
         # Create tabs
+        self.table_tab = self.create_table_tab()
         self.pressure_tab = self.create_control_tab('pressure')
         self.angle_tab = self.create_control_tab('angle')
         self.current_tab = self.create_control_tab('current')
 
+        self.tabs.addTab(self.table_tab, "ALL PARAMETERS")
         self.tabs.addTab(self.pressure_tab, "PRESSURE LOOP")
         self.tabs.addTab(self.angle_tab, "ANGLE LOOP")
         self.tabs.addTab(self.current_tab, "CURRENT LOOP")
@@ -373,10 +370,15 @@ class CascadePIDTunerPyQt5(QtWidgets.QMainWindow):
         self.cascade_button.setStyleSheet("QPushButton:checked { background-color: lightgreen; }")
         self.cascade_button.clicked.connect(self.toggle_cascade_mode)
 
+        apply_button = QtWidgets.QPushButton('Apply Changes')
+        apply_button.setStyleSheet("QPushButton { background-color: lightblue; font-weight: bold; }")
+        apply_button.clicked.connect(self.apply_changes)
+
         reset_button = QtWidgets.QPushButton('Reset to Defaults')
         reset_button.clicked.connect(self.reset_parameters)
 
         button_layout.addWidget(self.cascade_button)
+        button_layout.addWidget(apply_button)
         button_layout.addWidget(reset_button)
         button_layout.addStretch()
 
@@ -384,138 +386,287 @@ class CascadePIDTunerPyQt5(QtWidgets.QMainWindow):
 
         return container
 
-    def create_control_tab(self, loop_name):
-        """Create a control tab for a specific loop"""
+    def create_table_tab(self):
+        """Create table view showing all parameters"""
         tab = QtWidgets.QWidget()
-        layout = QtWidgets.QFormLayout(tab)
+        layout = QtWidgets.QVBoxLayout(tab)
 
-        if loop_name == 'pressure':
-            kp_slider = self.create_slider(0, 200, int(self.pressure_Kp * 10),
-                                           lambda v: self.update_parameter('pressure_Kp', v/10))
-            ki_slider = self.create_slider(0, 100, int(self.pressure_Ki * 10),
-                                           lambda v: self.update_parameter('pressure_Ki', v/10))
-            kd_slider = self.create_slider(0, 150, int(self.pressure_Kd * 10),
-                                           lambda v: self.update_parameter('pressure_Kd', v/10))
-            sp_slider = self.create_slider(0, 100, int(self.pressure_setpoint),
-                                           lambda v: self.update_parameter('pressure_setpoint', v))
+        # Info label
+        info = QtWidgets.QLabel("Edit all PID parameters and setpoints in one place. Click 'Apply Changes' to update simulation.")
+        info.setStyleSheet("font-weight: bold; color: blue;")
+        layout.addWidget(info)
 
-            self.pressure_kp_label = QtWidgets.QLabel(f'{self.pressure_Kp:.3f}')
-            self.pressure_ki_label = QtWidgets.QLabel(f'{self.pressure_Ki:.3f}')
-            self.pressure_kd_label = QtWidgets.QLabel(f'{self.pressure_Kd:.3f}')
-            self.pressure_sp_label = QtWidgets.QLabel(f'{self.pressure_setpoint:.1f}')
+        # Create table
+        self.param_table = QtWidgets.QTableWidget(12, 2)
+        self.param_table.setHorizontalHeaderLabels(['Parameter', 'Value'])
+        self.param_table.horizontalHeader().setStretchLastSection(True)
+        self.param_table.setColumnWidth(0, 200)
 
-            layout.addRow(f'Kp (0-20):', self.create_slider_row(kp_slider, self.pressure_kp_label))
-            layout.addRow(f'Ki (0-10):', self.create_slider_row(ki_slider, self.pressure_ki_label))
-            layout.addRow(f'Kd (0-15):', self.create_slider_row(kd_slider, self.pressure_kd_label))
-            layout.addRow(f'Setpoint (0-100):', self.create_slider_row(sp_slider, self.pressure_sp_label))
+        # Populate table with spinboxes
+        row = 0
+        # Pressure parameters
+        self.param_table.setItem(row, 0, QtWidgets.QTableWidgetItem('Pressure Kp'))
+        self.pressure_kp_spin = QtWidgets.QDoubleSpinBox()
+        self.pressure_kp_spin.setRange(0, 20)
+        self.pressure_kp_spin.setDecimals(3)
+        self.pressure_kp_spin.setSingleStep(0.1)
+        self.pressure_kp_spin.setValue(self.pressure_Kp)
+        self.param_table.setCellWidget(row, 1, self.pressure_kp_spin)
+        row += 1
 
-        elif loop_name == 'angle':
-            kp_slider = self.create_slider(0, 50, int(self.angle_Kp * 10),
-                                           lambda v: self.update_parameter('angle_Kp', v/10))
-            ki_slider = self.create_slider(0, 20, int(self.angle_Ki * 10),
-                                           lambda v: self.update_parameter('angle_Ki', v/10))
-            kd_slider = self.create_slider(0, 100, int(self.angle_Kd * 10),
-                                           lambda v: self.update_parameter('angle_Kd', v/10))
-            sp_slider = self.create_slider(0, 100, int(self.angle_setpoint),
-                                           lambda v: self.update_parameter('angle_setpoint', v))
+        self.param_table.setItem(row, 0, QtWidgets.QTableWidgetItem('Pressure Ki'))
+        self.pressure_ki_spin = QtWidgets.QDoubleSpinBox()
+        self.pressure_ki_spin.setRange(0, 10)
+        self.pressure_ki_spin.setDecimals(3)
+        self.pressure_ki_spin.setSingleStep(0.1)
+        self.pressure_ki_spin.setValue(self.pressure_Ki)
+        self.param_table.setCellWidget(row, 1, self.pressure_ki_spin)
+        row += 1
 
-            self.angle_kp_label = QtWidgets.QLabel(f'{self.angle_Kp:.3f}')
-            self.angle_ki_label = QtWidgets.QLabel(f'{self.angle_Ki:.3f}')
-            self.angle_kd_label = QtWidgets.QLabel(f'{self.angle_Kd:.3f}')
-            self.angle_sp_label = QtWidgets.QLabel(f'{self.angle_setpoint:.1f}')
+        self.param_table.setItem(row, 0, QtWidgets.QTableWidgetItem('Pressure Kd'))
+        self.pressure_kd_spin = QtWidgets.QDoubleSpinBox()
+        self.pressure_kd_spin.setRange(0, 15)
+        self.pressure_kd_spin.setDecimals(3)
+        self.pressure_kd_spin.setSingleStep(0.1)
+        self.pressure_kd_spin.setValue(self.pressure_Kd)
+        self.param_table.setCellWidget(row, 1, self.pressure_kd_spin)
+        row += 1
 
-            layout.addRow(f'Kp (0-5):', self.create_slider_row(kp_slider, self.angle_kp_label))
-            layout.addRow(f'Ki (0-2):', self.create_slider_row(ki_slider, self.angle_ki_label))
-            layout.addRow(f'Kd (0-10):', self.create_slider_row(kd_slider, self.angle_kd_label))
-            layout.addRow(f'Setpoint (0-100):', self.create_slider_row(sp_slider, self.angle_sp_label))
+        self.param_table.setItem(row, 0, QtWidgets.QTableWidgetItem('Pressure Setpoint'))
+        self.pressure_sp_spin = QtWidgets.QDoubleSpinBox()
+        self.pressure_sp_spin.setRange(0, 100)
+        self.pressure_sp_spin.setDecimals(1)
+        self.pressure_sp_spin.setValue(self.pressure_setpoint)
+        self.param_table.setCellWidget(row, 1, self.pressure_sp_spin)
+        row += 1
 
-        elif loop_name == 'current':
-            kp_slider = self.create_slider(0, 100, int(self.current_Kp * 100),
-                                           lambda v: self.update_parameter('current_Kp', v/100))
-            ki_slider = self.create_slider(0, 300, int(self.current_Ki * 100),
-                                           lambda v: self.update_parameter('current_Ki', v/100))
-            kd_slider = self.create_slider(0, 100, int(self.current_Kd * 100),
-                                           lambda v: self.update_parameter('current_Kd', v/100))
-            sp_slider = self.create_slider(0, 100, int(self.current_setpoint),
-                                           lambda v: self.update_parameter('current_setpoint', v))
+        # Angle parameters
+        self.param_table.setItem(row, 0, QtWidgets.QTableWidgetItem('Angle Kp'))
+        self.angle_kp_spin = QtWidgets.QDoubleSpinBox()
+        self.angle_kp_spin.setRange(0, 5)
+        self.angle_kp_spin.setDecimals(3)
+        self.angle_kp_spin.setSingleStep(0.05)
+        self.angle_kp_spin.setValue(self.angle_Kp)
+        self.param_table.setCellWidget(row, 1, self.angle_kp_spin)
+        row += 1
 
-            self.current_kp_label = QtWidgets.QLabel(f'{self.current_Kp:.4f}')
-            self.current_ki_label = QtWidgets.QLabel(f'{self.current_Ki:.4f}')
-            self.current_kd_label = QtWidgets.QLabel(f'{self.current_Kd:.4f}')
-            self.current_sp_label = QtWidgets.QLabel(f'{self.current_setpoint:.1f}')
+        self.param_table.setItem(row, 0, QtWidgets.QTableWidgetItem('Angle Ki'))
+        self.angle_ki_spin = QtWidgets.QDoubleSpinBox()
+        self.angle_ki_spin.setRange(0, 2)
+        self.angle_ki_spin.setDecimals(3)
+        self.angle_ki_spin.setSingleStep(0.05)
+        self.angle_ki_spin.setValue(self.angle_Ki)
+        self.param_table.setCellWidget(row, 1, self.angle_ki_spin)
+        row += 1
 
-            layout.addRow(f'Kp (0-1):', self.create_slider_row(kp_slider, self.current_kp_label))
-            layout.addRow(f'Ki (0-3):', self.create_slider_row(ki_slider, self.current_ki_label))
-            layout.addRow(f'Kd (0-1):', self.create_slider_row(kd_slider, self.current_kd_label))
-            layout.addRow(f'Setpoint (0-100):', self.create_slider_row(sp_slider, self.current_sp_label))
+        self.param_table.setItem(row, 0, QtWidgets.QTableWidgetItem('Angle Kd'))
+        self.angle_kd_spin = QtWidgets.QDoubleSpinBox()
+        self.angle_kd_spin.setRange(0, 10)
+        self.angle_kd_spin.setDecimals(3)
+        self.angle_kd_spin.setSingleStep(0.1)
+        self.angle_kd_spin.setValue(self.angle_Kd)
+        self.param_table.setCellWidget(row, 1, self.angle_kd_spin)
+        row += 1
 
-        # Add info label
-        info_label = QtWidgets.QLabel()
-        if loop_name == 'pressure':
-            info_text = "Outer loop (slowest) - Controls hydraulic pressure\nRuns at 2.5ms period"
-        elif loop_name == 'angle':
-            info_text = "Middle loop - Controls pump swash plate angle\nRuns at 1ms period"
-        else:
-            info_text = "Inner loop (fastest) - Controls solenoid valve current\nRuns at 100us period"
-        info_label.setText(info_text)
-        info_label.setStyleSheet("color: gray; font-style: italic;")
-        layout.addRow(info_label)
+        self.param_table.setItem(row, 0, QtWidgets.QTableWidgetItem('Angle Setpoint'))
+        self.angle_sp_spin = QtWidgets.QDoubleSpinBox()
+        self.angle_sp_spin.setRange(0, 100)
+        self.angle_sp_spin.setDecimals(1)
+        self.angle_sp_spin.setValue(self.angle_setpoint)
+        self.param_table.setCellWidget(row, 1, self.angle_sp_spin)
+        row += 1
+
+        # Current parameters
+        self.param_table.setItem(row, 0, QtWidgets.QTableWidgetItem('Current Kp'))
+        self.current_kp_spin = QtWidgets.QDoubleSpinBox()
+        self.current_kp_spin.setRange(0, 1)
+        self.current_kp_spin.setDecimals(4)
+        self.current_kp_spin.setSingleStep(0.01)
+        self.current_kp_spin.setValue(self.current_Kp)
+        self.param_table.setCellWidget(row, 1, self.current_kp_spin)
+        row += 1
+
+        self.param_table.setItem(row, 0, QtWidgets.QTableWidgetItem('Current Ki'))
+        self.current_ki_spin = QtWidgets.QDoubleSpinBox()
+        self.current_ki_spin.setRange(0, 3)
+        self.current_ki_spin.setDecimals(4)
+        self.current_ki_spin.setSingleStep(0.05)
+        self.current_ki_spin.setValue(self.current_Ki)
+        self.param_table.setCellWidget(row, 1, self.current_ki_spin)
+        row += 1
+
+        self.param_table.setItem(row, 0, QtWidgets.QTableWidgetItem('Current Kd'))
+        self.current_kd_spin = QtWidgets.QDoubleSpinBox()
+        self.current_kd_spin.setRange(0, 1)
+        self.current_kd_spin.setDecimals(4)
+        self.current_kd_spin.setSingleStep(0.01)
+        self.current_kd_spin.setValue(self.current_Kd)
+        self.param_table.setCellWidget(row, 1, self.current_kd_spin)
+        row += 1
+
+        self.param_table.setItem(row, 0, QtWidgets.QTableWidgetItem('Current Setpoint'))
+        self.current_sp_spin = QtWidgets.QDoubleSpinBox()
+        self.current_sp_spin.setRange(0, 100)
+        self.current_sp_spin.setDecimals(1)
+        self.current_sp_spin.setValue(self.current_setpoint)
+        self.param_table.setCellWidget(row, 1, self.current_sp_spin)
+
+        layout.addWidget(self.param_table)
 
         return tab
 
-    def create_slider(self, min_val, max_val, init_val, callback):
-        """Create a slider with callback"""
-        slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
-        slider.setMinimum(min_val)
-        slider.setMaximum(max_val)
-        slider.setValue(init_val)
-        slider.valueChanged.connect(callback)
-        return slider
+    def create_control_tab(self, loop_name):
+        """Create a control tab for a specific loop using spinboxes"""
+        tab = QtWidgets.QWidget()
+        layout = QtWidgets.QFormLayout(tab)
+        layout.setLabelAlignment(QtCore.Qt.AlignRight)
 
-    def create_slider_row(self, slider, label):
-        """Create a row with slider and value label"""
-        widget = QtWidgets.QWidget()
-        layout = QtWidgets.QHBoxLayout(widget)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(slider, stretch=4)
-        layout.addWidget(label, stretch=1)
-        return widget
+        if loop_name == 'pressure':
+            # Kp
+            kp_spin = QtWidgets.QDoubleSpinBox()
+            kp_spin.setRange(0, 20)
+            kp_spin.setDecimals(3)
+            kp_spin.setSingleStep(0.1)
+            kp_spin.setValue(self.pressure_Kp)
+            kp_spin.valueChanged.connect(lambda v: setattr(self, 'pressure_Kp', v))
+            layout.addRow('Kp (0-20):', kp_spin)
 
-    def update_parameter(self, param_name, value):
-        """Update a parameter and schedule simulation update"""
-        setattr(self, param_name, value)
+            # Ki
+            ki_spin = QtWidgets.QDoubleSpinBox()
+            ki_spin.setRange(0, 10)
+            ki_spin.setDecimals(3)
+            ki_spin.setSingleStep(0.1)
+            ki_spin.setValue(self.pressure_Ki)
+            ki_spin.valueChanged.connect(lambda v: setattr(self, 'pressure_Ki', v))
+            layout.addRow('Ki (0-10):', ki_spin)
 
-        # Update label
-        if 'pressure' in param_name:
-            if 'Kp' in param_name:
-                self.pressure_kp_label.setText(f'{value:.3f}')
-            elif 'Ki' in param_name:
-                self.pressure_ki_label.setText(f'{value:.3f}')
-            elif 'Kd' in param_name:
-                self.pressure_kd_label.setText(f'{value:.3f}')
-            elif 'setpoint' in param_name:
-                self.pressure_sp_label.setText(f'{value:.1f}')
-        elif 'angle' in param_name:
-            if 'Kp' in param_name:
-                self.angle_kp_label.setText(f'{value:.3f}')
-            elif 'Ki' in param_name:
-                self.angle_ki_label.setText(f'{value:.3f}')
-            elif 'Kd' in param_name:
-                self.angle_kd_label.setText(f'{value:.3f}')
-            elif 'setpoint' in param_name:
-                self.angle_sp_label.setText(f'{value:.1f}')
-        elif 'current' in param_name:
-            if 'Kp' in param_name:
-                self.current_kp_label.setText(f'{value:.4f}')
-            elif 'Ki' in param_name:
-                self.current_ki_label.setText(f'{value:.4f}')
-            elif 'Kd' in param_name:
-                self.current_kd_label.setText(f'{value:.4f}')
-            elif 'setpoint' in param_name:
-                self.current_sp_label.setText(f'{value:.1f}')
+            # Kd
+            kd_spin = QtWidgets.QDoubleSpinBox()
+            kd_spin.setRange(0, 15)
+            kd_spin.setDecimals(3)
+            kd_spin.setSingleStep(0.1)
+            kd_spin.setValue(self.pressure_Kd)
+            kd_spin.valueChanged.connect(lambda v: setattr(self, 'pressure_Kd', v))
+            layout.addRow('Kd (0-15):', kd_spin)
 
-        # Debounce: restart timer (only update after 100ms of no changes)
-        self.update_timer.start(100)
+            # Setpoint
+            sp_spin = QtWidgets.QDoubleSpinBox()
+            sp_spin.setRange(0, 100)
+            sp_spin.setDecimals(1)
+            sp_spin.setValue(self.pressure_setpoint)
+            sp_spin.valueChanged.connect(lambda v: setattr(self, 'pressure_setpoint', v))
+            layout.addRow('Setpoint (0-100):', sp_spin)
+
+            info_text = "Outer loop (slowest) - Controls hydraulic pressure\nRuns at 2.5ms period"
+
+        elif loop_name == 'angle':
+            # Kp
+            kp_spin = QtWidgets.QDoubleSpinBox()
+            kp_spin.setRange(0, 5)
+            kp_spin.setDecimals(3)
+            kp_spin.setSingleStep(0.05)
+            kp_spin.setValue(self.angle_Kp)
+            kp_spin.valueChanged.connect(lambda v: setattr(self, 'angle_Kp', v))
+            layout.addRow('Kp (0-5):', kp_spin)
+
+            # Ki
+            ki_spin = QtWidgets.QDoubleSpinBox()
+            ki_spin.setRange(0, 2)
+            ki_spin.setDecimals(3)
+            ki_spin.setSingleStep(0.05)
+            ki_spin.setValue(self.angle_Ki)
+            ki_spin.valueChanged.connect(lambda v: setattr(self, 'angle_Ki', v))
+            layout.addRow('Ki (0-2):', ki_spin)
+
+            # Kd
+            kd_spin = QtWidgets.QDoubleSpinBox()
+            kd_spin.setRange(0, 10)
+            kd_spin.setDecimals(3)
+            kd_spin.setSingleStep(0.1)
+            kd_spin.setValue(self.angle_Kd)
+            kd_spin.valueChanged.connect(lambda v: setattr(self, 'angle_Kd', v))
+            layout.addRow('Kd (0-10):', kd_spin)
+
+            # Setpoint
+            sp_spin = QtWidgets.QDoubleSpinBox()
+            sp_spin.setRange(0, 100)
+            sp_spin.setDecimals(1)
+            sp_spin.setValue(self.angle_setpoint)
+            sp_spin.valueChanged.connect(lambda v: setattr(self, 'angle_setpoint', v))
+            layout.addRow('Setpoint (0-100):', sp_spin)
+
+            info_text = "Middle loop - Controls pump swash plate angle\nRuns at 1ms period"
+
+        else:  # current
+            # Kp
+            kp_spin = QtWidgets.QDoubleSpinBox()
+            kp_spin.setRange(0, 1)
+            kp_spin.setDecimals(4)
+            kp_spin.setSingleStep(0.01)
+            kp_spin.setValue(self.current_Kp)
+            kp_spin.valueChanged.connect(lambda v: setattr(self, 'current_Kp', v))
+            layout.addRow('Kp (0-1):', kp_spin)
+
+            # Ki
+            ki_spin = QtWidgets.QDoubleSpinBox()
+            ki_spin.setRange(0, 3)
+            ki_spin.setDecimals(4)
+            ki_spin.setSingleStep(0.05)
+            ki_spin.setValue(self.current_Ki)
+            ki_spin.valueChanged.connect(lambda v: setattr(self, 'current_Ki', v))
+            layout.addRow('Ki (0-3):', ki_spin)
+
+            # Kd
+            kd_spin = QtWidgets.QDoubleSpinBox()
+            kd_spin.setRange(0, 1)
+            kd_spin.setDecimals(4)
+            kd_spin.setSingleStep(0.01)
+            kd_spin.setValue(self.current_Kd)
+            kd_spin.valueChanged.connect(lambda v: setattr(self, 'current_Kd', v))
+            layout.addRow('Kd (0-1):', kd_spin)
+
+            # Setpoint
+            sp_spin = QtWidgets.QDoubleSpinBox()
+            sp_spin.setRange(0, 100)
+            sp_spin.setDecimals(1)
+            sp_spin.setValue(self.current_setpoint)
+            sp_spin.valueChanged.connect(lambda v: setattr(self, 'current_setpoint', v))
+            layout.addRow('Setpoint (0-100):', sp_spin)
+
+            info_text = "Inner loop (fastest) - Controls solenoid valve current\nRuns at 100us period"
+
+        # Add info label
+        info_label = QtWidgets.QLabel(info_text)
+        info_label.setStyleSheet("color: gray; font-style: italic;")
+        layout.addRow(info_label)
+
+        # Add note about Apply button
+        apply_note = QtWidgets.QLabel("\nClick 'Apply Changes' button to update simulation")
+        apply_note.setStyleSheet("color: blue; font-weight: bold;")
+        layout.addRow(apply_note)
+
+        return tab
+
+    def apply_changes(self):
+        """Apply parameter changes from all spinboxes and update simulation"""
+        # Read values from table tab spinboxes
+        self.pressure_Kp = self.pressure_kp_spin.value()
+        self.pressure_Ki = self.pressure_ki_spin.value()
+        self.pressure_Kd = self.pressure_kd_spin.value()
+        self.pressure_setpoint = self.pressure_sp_spin.value()
+
+        self.angle_Kp = self.angle_kp_spin.value()
+        self.angle_Ki = self.angle_ki_spin.value()
+        self.angle_Kd = self.angle_kd_spin.value()
+        self.angle_setpoint = self.angle_sp_spin.value()
+
+        self.current_Kp = self.current_kp_spin.value()
+        self.current_Ki = self.current_ki_spin.value()
+        self.current_Kd = self.current_kd_spin.value()
+        self.current_setpoint = self.current_sp_spin.value()
+
+        # Update simulation
+        self.update_simulation()
 
     def toggle_cascade_mode(self):
         """Toggle cascade mode"""
@@ -526,34 +677,44 @@ class CascadePIDTunerPyQt5(QtWidgets.QMainWindow):
         else:
             self.cascade_button.setText('CASCADE MODE: OFF')
             self.cascade_button.setStyleSheet("QPushButton:checked { background-color: salmon; }")
-        self.update_simulation()
+        self.apply_changes()
 
     def reset_parameters(self):
         """Reset all parameters to defaults"""
-        # Reset to real controller values
-        self.current_Kp = 0.0244
-        self.current_Ki = 0.7935
-        self.current_Kd = 0.0
+        # Reset to real controller values and update spinboxes
+        self.pressure_Kp = 5.333
+        self.pressure_Ki = 0.0
+        self.pressure_Kd = 5.15
+        self.pressure_setpoint = 50.0
 
         self.angle_Kp = 0.375
         self.angle_Ki = 0.0
         self.angle_Kd = 3.333
+        self.angle_setpoint = 40.0
 
-        self.pressure_Kp = 5.333
-        self.pressure_Ki = 0.0
-        self.pressure_Kd = 5.15
+        self.current_Kp = 0.0244
+        self.current_Ki = 0.7935
+        self.current_Kd = 0.0
+        self.current_setpoint = 30.0
 
-        # Update UI (this will recreate all sliders)
-        self.tabs.clear()
-        self.pressure_tab = self.create_control_tab('pressure')
-        self.angle_tab = self.create_control_tab('angle')
-        self.current_tab = self.create_control_tab('current')
+        # Update all spinboxes in table tab
+        self.pressure_kp_spin.setValue(self.pressure_Kp)
+        self.pressure_ki_spin.setValue(self.pressure_Ki)
+        self.pressure_kd_spin.setValue(self.pressure_Kd)
+        self.pressure_sp_spin.setValue(self.pressure_setpoint)
 
-        self.tabs.addTab(self.pressure_tab, "PRESSURE LOOP")
-        self.tabs.addTab(self.angle_tab, "ANGLE LOOP")
-        self.tabs.addTab(self.current_tab, "CURRENT LOOP")
+        self.angle_kp_spin.setValue(self.angle_Kp)
+        self.angle_ki_spin.setValue(self.angle_Ki)
+        self.angle_kd_spin.setValue(self.angle_Kd)
+        self.angle_sp_spin.setValue(self.angle_setpoint)
 
-        self.update_simulation()
+        self.current_kp_spin.setValue(self.current_Kp)
+        self.current_ki_spin.setValue(self.current_Ki)
+        self.current_kd_spin.setValue(self.current_Kd)
+        self.current_sp_spin.setValue(self.current_setpoint)
+
+        # Apply changes
+        self.apply_changes()
 
     def run_simulation(self):
         """Run cascade PID simulation"""
