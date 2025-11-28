@@ -199,11 +199,8 @@ class CascadePIDTunerPyQt5(QtWidgets.QMainWindow):
 
         # Use the fastest rate for simulation
         self.sample_time = self.dt_current
-        self.duration = 2.0  # Reduced from 5.0s for better performance
+        self.duration = 5.0
         self.time = np.arange(0, self.duration, self.sample_time)
-
-        # Decimation for plotting - plot every Nth point for speed
-        self.plot_decimation = 10  # Plot every 10th point (200us instead of 100us)
 
         # PID Parameters (initial values from real controller)
         # Current Loop (from PID.h lines 34-43)
@@ -226,11 +223,10 @@ class CascadePIDTunerPyQt5(QtWidgets.QMainWindow):
         self.angle_setpoint = 40.0
         self.current_setpoint = 30.0
 
-        # Create plants - all use simulation timestep, not control period
-        # (plants are physical systems that evolve continuously at simulation rate)
-        self.current_plant = CurrentPlant(sample_time=self.sample_time)
-        self.angle_plant = AnglePlant(sample_time=self.sample_time)
-        self.pressure_plant = PressurePlant(sample_time=self.sample_time)
+        # Create plants
+        self.current_plant = CurrentPlant(sample_time=self.dt_current)
+        self.angle_plant = AnglePlant(sample_time=self.dt_angle)
+        self.pressure_plant = PressurePlant(sample_time=self.dt_pressure)
 
         # Control mode: 'cascade' or 'independent'
         self.cascade_mode = True
@@ -293,20 +289,11 @@ class CascadePIDTunerPyQt5(QtWidgets.QMainWindow):
 
     def setup_plots(self):
         """Setup the matplotlib plots"""
-        # Create decimated arrays for plotting
-        self.time_plot = self.time[::self.plot_decimation]
-        pressure_sp_plot = self.pressure_sp_array[::self.plot_decimation]
-        pressure_pv_plot = self.pressure_pv_array[::self.plot_decimation]
-        angle_sp_plot = self.angle_sp_array[::self.plot_decimation]
-        angle_pv_plot = self.angle_pv_array[::self.plot_decimation]
-        current_sp_plot = self.current_sp_array[::self.plot_decimation]
-        current_pv_plot = self.current_pv_array[::self.plot_decimation]
-
         # Pressure plot
         self.ax_pressure = self.canvas_pressure.fig.add_subplot(111)
-        self.line_pressure_sp, = self.ax_pressure.plot(self.time_plot, pressure_sp_plot,
+        self.line_pressure_sp, = self.ax_pressure.plot(self.time, self.pressure_sp_array,
                                                        'r--', linewidth=2, label='Setpoint', alpha=0.7)
-        self.line_pressure_pv, = self.ax_pressure.plot(self.time_plot, pressure_pv_plot,
+        self.line_pressure_pv, = self.ax_pressure.plot(self.time, self.pressure_pv_array,
                                                        'b-', linewidth=1.5, label='Pressure')
         self.ax_pressure.set_xlabel('Time (s)')
         self.ax_pressure.set_ylabel('Pressure')
@@ -316,9 +303,9 @@ class CascadePIDTunerPyQt5(QtWidgets.QMainWindow):
 
         # Angle plot
         self.ax_angle = self.canvas_angle.fig.add_subplot(111)
-        self.line_angle_sp, = self.ax_angle.plot(self.time_plot, angle_sp_plot,
+        self.line_angle_sp, = self.ax_angle.plot(self.time, self.angle_sp_array,
                                                  'r--', linewidth=2, label='Setpoint', alpha=0.7)
-        self.line_angle_pv, = self.ax_angle.plot(self.time_plot, angle_pv_plot,
+        self.line_angle_pv, = self.ax_angle.plot(self.time, self.angle_pv_array,
                                                  'g-', linewidth=1.5, label='Angle')
         self.ax_angle.set_xlabel('Time (s)')
         self.ax_angle.set_ylabel('Angle')
@@ -328,9 +315,9 @@ class CascadePIDTunerPyQt5(QtWidgets.QMainWindow):
 
         # Current plot
         self.ax_current = self.canvas_current.fig.add_subplot(111)
-        self.line_current_sp, = self.ax_current.plot(self.time_plot, current_sp_plot,
+        self.line_current_sp, = self.ax_current.plot(self.time, self.current_sp_array,
                                                      'r--', linewidth=2, label='Setpoint', alpha=0.7)
-        self.line_current_pv, = self.ax_current.plot(self.time_plot, current_pv_plot,
+        self.line_current_pv, = self.ax_current.plot(self.time, self.current_pv_array,
                                                      'm-', linewidth=1.5, label='Current')
         self.ax_current.set_xlabel('Time (s)')
         self.ax_current.set_ylabel('Current')
@@ -340,11 +327,11 @@ class CascadePIDTunerPyQt5(QtWidgets.QMainWindow):
 
         # Combined plot
         self.ax_combined = self.canvas_combined.fig.add_subplot(111)
-        self.line_combined_pressure, = self.ax_combined.plot(self.time_plot, pressure_pv_plot,
+        self.line_combined_pressure, = self.ax_combined.plot(self.time, self.pressure_pv_array,
                                                              'b-', linewidth=1.5, label='Pressure', alpha=0.8)
-        self.line_combined_angle, = self.ax_combined.plot(self.time_plot, angle_pv_plot,
+        self.line_combined_angle, = self.ax_combined.plot(self.time, self.angle_pv_array,
                                                           'g-', linewidth=1.5, label='Angle', alpha=0.8)
-        self.line_combined_current, = self.ax_combined.plot(self.time_plot, current_pv_plot,
+        self.line_combined_current, = self.ax_combined.plot(self.time, self.current_pv_array,
                                                             'm-', linewidth=1.5, label='Current', alpha=0.8)
         self.ax_combined.set_xlabel('Time (s)')
         self.ax_combined.set_ylabel('Value')
@@ -618,8 +605,8 @@ class CascadePIDTunerPyQt5(QtWidgets.QMainWindow):
 
         # Simulation loop
         for i, t in enumerate(self.time):
-            # Update setpoints (step at t=0.4s for 2s duration)
-            if t >= 0.4:
+            # Update setpoints (step at t=1s)
+            if t >= 1.0:
                 pressure_sp = self.pressure_setpoint
                 angle_sp = self.angle_setpoint if not self.cascade_mode else 0.0
                 current_sp = self.current_setpoint if not self.cascade_mode else 0.0
@@ -681,25 +668,17 @@ class CascadePIDTunerPyQt5(QtWidgets.QMainWindow):
         # Run simulation
         self.run_simulation()
 
-        # Decimate data for plotting (much faster!)
-        pressure_sp_plot = self.pressure_sp_array[::self.plot_decimation]
-        pressure_pv_plot = self.pressure_pv_array[::self.plot_decimation]
-        angle_sp_plot = self.angle_sp_array[::self.plot_decimation]
-        angle_pv_plot = self.angle_pv_array[::self.plot_decimation]
-        current_sp_plot = self.current_sp_array[::self.plot_decimation]
-        current_pv_plot = self.current_pv_array[::self.plot_decimation]
-
         # Update plot data (fast - just update data, don't recreate plots)
-        self.line_pressure_sp.set_ydata(pressure_sp_plot)
-        self.line_pressure_pv.set_ydata(pressure_pv_plot)
-        self.line_angle_sp.set_ydata(angle_sp_plot)
-        self.line_angle_pv.set_ydata(angle_pv_plot)
-        self.line_current_sp.set_ydata(current_sp_plot)
-        self.line_current_pv.set_ydata(current_pv_plot)
+        self.line_pressure_sp.set_ydata(self.pressure_sp_array)
+        self.line_pressure_pv.set_ydata(self.pressure_pv_array)
+        self.line_angle_sp.set_ydata(self.angle_sp_array)
+        self.line_angle_pv.set_ydata(self.angle_pv_array)
+        self.line_current_sp.set_ydata(self.current_sp_array)
+        self.line_current_pv.set_ydata(self.current_pv_array)
 
-        self.line_combined_pressure.set_ydata(pressure_pv_plot)
-        self.line_combined_angle.set_ydata(angle_pv_plot)
-        self.line_combined_current.set_ydata(current_pv_plot)
+        self.line_combined_pressure.set_ydata(self.pressure_pv_array)
+        self.line_combined_angle.set_ydata(self.angle_pv_array)
+        self.line_combined_current.set_ydata(self.current_pv_array)
 
         # Rescale axes
         self.ax_pressure.relim()
@@ -749,8 +728,7 @@ def main():
     print("  4. Watch all three loops interact in the combined plot")
     print()
     print("Performance Notes:")
-    print("  • PyQt5 version - OPTIMIZED for speed!")
-    print("  • 2-second simulation with 10x decimation (2000 plot points)")
+    print("  • PyQt5 version - much faster than matplotlib-only!")
     print("  • Debounced updates for smooth slider operation")
     print("  • Real-time visualization with minimal lag")
     print()
