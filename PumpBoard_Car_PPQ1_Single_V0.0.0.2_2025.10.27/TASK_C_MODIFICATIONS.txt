@@ -1,0 +1,73 @@
+================================================================================
+FILE: Function/Task.c - Add CAN Protocol Periodic Task
+================================================================================
+
+----- STEP 1: Add include at the top -----
+
+#include "can_protocol.h"
+
+----- STEP 2: Add CAN protocol task function -----
+
+Add this function somewhere in Task.c:
+
+/*******************************************************************************
+* Function Name : Task_CAN_Protocol
+* Description   : CAN protocol periodic task - call every 1ms
+* Input         : None
+* Output        : None
+* Return        : None
+*******************************************************************************/
+void Task_CAN_Protocol(void)
+{
+    #ifdef ENABLE_CAN1
+    CAN_Protocol_Task();
+    #endif
+}
+
+----- STEP 3: Call the task in the 1ms or 10ms periodic scheduler -----
+
+Find the existing task scheduler (likely in a timer interrupt or main loop)
+and add the call:
+
+    Task_CAN_Protocol();    // Call every 1ms for best performance
+
+----- EXAMPLE: If you have a SysTick handler calling tasks every 100us -----
+
+If you have code like this in Task.c or stm32f4xx_it.c:
+
+void SysTick_Handler(void)
+{
+    static u16 ms_counter = 0;
+
+    ms_counter++;
+
+    if (ms_counter >= 10)  // Every 1ms
+    {
+        ms_counter = 0;
+
+        // Add CAN task here:
+        Task_CAN_Protocol();
+    }
+}
+
+----- ALTERNATIVE: Add to existing task list -----
+
+If Task.c has a task table or scheduler structure, add:
+
+{
+    .task_function = Task_CAN_Protocol,
+    .period_ms = 1,
+    .enabled = 1
+}
+
+----- VERIFICATION -----
+
+After adding this task:
+1. CAN heartbeat will be sent every 100ms
+2. CAN status feedback will be sent every 50ms
+3. Received CAN commands will be processed immediately via interrupts
+
+The CAN_Protocol_Task() function maintains these timers and triggers
+the periodic transmissions automatically.
+
+================================================================================

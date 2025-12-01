@@ -1,0 +1,97 @@
+================================================================================
+FILE: USER/main.c - CAN Bus Integration Code Modifications
+================================================================================
+
+----- STEP 1: Add includes at the top (after existing includes) -----
+
+#include "Hw_CAN.h"
+#include "can_protocol.h"
+
+----- STEP 2: Add configuration structures (before main function) -----
+
+/* CAN Configuration */
+#define ENABLE_CAN1             // Comment out to disable CAN1
+// #define ENABLE_CAN2          // Uncomment to enable CAN2
+
+/* CAN Baud Rate Configuration */
+typedef struct {
+    u16 baud_rate_canopen;      // CAN1 baud rate (125, 250, or 500 kbps)
+    u16 baud_rate_j1939;        // CAN2 baud rate (for J1939 protocol)
+} user_parameter_t;
+
+user_parameter_t user_parameter = {
+    .baud_rate_canopen = 250,   // Default 250 kbps
+    .baud_rate_j1939 = 250      // Default 250 kbps
+};
+
+----- STEP 3: Add CAN initialization in main() function -----
+
+Location: After line 100 (after AD7689InitFunc();)
+
+Add these lines:
+
+    // Initialize CAN bus
+    #ifdef ENABLE_CAN1
+    Can1_Config();              // Initialize CAN1 with configured baud rate
+    CAN_Protocol_Init();        // Initialize CAN protocol layer
+    #endif
+
+    #ifdef ENABLE_CAN2
+    Can2_Config();              // Initialize CAN2 (optional)
+    #endif
+
+----- COMPLETE MODIFIED main.c (KEY SECTIONS) -----
+
+#include "application.h"
+#include "Task.h"
+#include "AD7689.h"
+#include "Hw_spi.h"
+#include "Hw_ADC.h"
+#include "gpio.h"
+#include "Hw_CAN.h"          // NEW
+#include "can_protocol.h"    // NEW
+
+/* ... existing defines ... */
+
+/* CAN Configuration */
+#define ENABLE_CAN1
+// #define ENABLE_CAN2
+
+typedef struct {
+    u16 baud_rate_canopen;
+    u16 baud_rate_j1939;
+} user_parameter_t;
+
+user_parameter_t user_parameter = {
+    .baud_rate_canopen = 250,
+    .baud_rate_j1939 = 250
+};
+
+/* ... existing code ... */
+
+int main(void)
+{
+    /* ... existing initialization code ... */
+
+    SPI3_Int();                         // SPI3 initialization
+    TIM2_init(PWM_ARR,TIM2_PSC);        // TIM2 initialization
+    Adc1_Analog_Input_Init();           // AD initialization
+    AD7689InitFunc();                   // AD7689 initialization
+
+    // Initialize CAN bus (NEW)
+    #ifdef ENABLE_CAN1
+    Can1_Config();
+    CAN_Protocol_Init();
+    #endif
+
+    #ifdef ENABLE_CAN2
+    Can2_Config();
+    #endif
+
+    SensorModeChangeFunc();             // Sensor mode configuration
+    CurDetectionRangeChose();           // Current detection range
+
+    /* ... rest of existing code ... */
+}
+
+================================================================================
