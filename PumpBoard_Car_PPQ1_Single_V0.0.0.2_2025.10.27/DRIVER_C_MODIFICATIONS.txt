@@ -1,0 +1,52 @@
+================================================================================
+FILE: HardWare_Init/Src/driver.c - Use New CAN Implementation
+================================================================================
+
+----- STEP 1: Add include at the top -----
+
+#include "Hw_CAN.h"
+
+----- STEP 2: The existing Can1_Config() and Can2_Config() functions are already correct -----
+
+The functions Can1_Config() and Can2_Config() in driver.c call:
+- CAN1_Mode_Init()
+- CAN2_Mode_Init()
+
+These functions are now IMPLEMENTED in Hw_CAN.c, so the existing code in driver.c
+will work without modification. The commented-out lines can remain as-is.
+
+----- VERIFICATION: Current code in driver.c (lines 20-47) -----
+
+void Can1_Config(void)
+{
+    // 500k =6  250k = 12  125k = 24
+    if(user_parameter.baud_rate_canopen==125)
+    {
+        CAN1_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,24,CAN_Mode_Normal);
+        //CAN2_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,24,CAN_Mode_Normal);
+    }
+    else if(user_parameter.baud_rate_canopen==250)
+    {
+        CAN1_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,12,CAN_Mode_Normal);
+        //CAN2_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,24,CAN_Mode_Normal);
+    }
+    else if(user_parameter.baud_rate_canopen==500)
+    {
+        CAN1_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,6,CAN_Mode_Normal);
+        //CAN2_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,24,CAN_Mode_Normal);
+    }
+    else // Default 250k
+    {
+        CAN1_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,12,CAN_Mode_Normal);
+        //CAN2_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,24,CAN_Mode_Normal);
+    }
+}
+
+----- NOTE -----
+
+This code is ALREADY CORRECT. It will now call the implemented CAN1_Mode_Init()
+function from Hw_CAN.c instead of an empty stub.
+
+No changes required to driver.c except adding the #include "Hw_CAN.h" at the top.
+
+================================================================================

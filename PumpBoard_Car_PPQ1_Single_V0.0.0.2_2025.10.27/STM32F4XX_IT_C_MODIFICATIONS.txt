@@ -1,0 +1,102 @@
+================================================================================
+FILE: Function/stm32f4xx_it.c - CAN Interrupt Handler Modifications
+================================================================================
+
+----- STEP 1: Add includes at the top (after existing includes) -----
+
+#include "Hw_CAN.h"
+#include "can_protocol.h"
+
+----- STEP 2: Replace CAN interrupt handlers (lines 201-208) -----
+
+REMOVE THIS CODE:
+
+void CAN1_RX0_IRQHandler(void)//18fe3082
+{
+//    CAN_Receive_j1939(CAN1, 0, &canopen_msg);
+}
+void CAN2_RX0_IRQHandler(void)
+{
+//    CAN_Receive(CAN2, 0, &can_j1939_msg);
+}
+
+REPLACE WITH THIS CODE:
+
+/**
+  * @brief  CAN1 RX0 interrupt handler
+  * @param  None
+  * @retval None
+  */
+void CAN1_RX0_IRQHandler(void)
+{
+    CanRxMsg RxMessage;
+    u32 id;
+    u8 data[8];
+    u8 len;
+
+    if (CAN_GetITStatus(CAN1, CAN_IT_FMP0) != RESET)
+    {
+        /* Receive message */
+        CAN_Receive(CAN1, CAN_FIFO0, &RxMessage);
+
+        /* Extract ID and data */
+        if (RxMessage.IDE == CAN_Id_Standard)
+        {
+            id = RxMessage.StdId;
+        }
+        else
+        {
+            id = RxMessage.ExtId;
+        }
+
+        len = RxMessage.DLC;
+        for (u8 i = 0; i < len && i < 8; i++)
+        {
+            data[i] = RxMessage.Data[i];
+        }
+
+        /* Process message */
+        CAN_Process_Received_Msg(id, data, len);
+
+        /* Clear interrupt flag */
+        CAN_ClearITPendingBit(CAN1, CAN_IT_FMP0);
+    }
+}
+
+/**
+  * @brief  CAN2 RX0 interrupt handler (optional)
+  * @param  None
+  * @retval None
+  */
+void CAN2_RX0_IRQHandler(void)
+{
+    CanRxMsg RxMessage;
+
+    if (CAN_GetITStatus(CAN2, CAN_IT_FMP0) != RESET)
+    {
+        CAN_Receive(CAN2, CAN_FIFO0, &RxMessage);
+
+        /* Add CAN2 message processing here if needed */
+        /* For J1939 protocol, implement separate handler */
+
+        CAN_ClearITPendingBit(CAN2, CAN_IT_FMP0);
+    }
+}
+
+----- OPTIONAL: Add CAN TX interrupt handler (for transmit confirmation) -----
+
+/**
+  * @brief  CAN1 TX interrupt handler (optional)
+  * @param  None
+  * @retval None
+  */
+void CAN1_TX_IRQHandler(void)
+{
+    if (CAN_GetITStatus(CAN1, CAN_IT_TME) != RESET)
+    {
+        /* Transmit mailbox empty - can send next message */
+        CAN_ClearITPendingBit(CAN1, CAN_IT_TME);
+    }
+}
+
+================================================================================
