@@ -228,16 +228,19 @@ class PumpBoardGUI(QMainWindow):
             label = QLabel(f"{param['name']} ({param['unit']}):")
             setpoint_layout.addWidget(label, row, 0)
 
-            if param['unit'] == '%':
+            # Use QDoubleSpinBox if scale is not 1.0, otherwise use QSpinBox
+            if param['scale'] != 1.0:
                 spinbox = QDoubleSpinBox()
-                spinbox.setDecimals(1)
-                spinbox.setSuffix(" %")
+                spinbox.setDecimals(2)
+                spinbox.setSuffix(" " + param['unit'])
+                spinbox.setMinimum(param['min'] * param['scale'])
+                spinbox.setMaximum(param['max'] * param['scale'])
             else:
                 spinbox = QSpinBox()
                 spinbox.setSuffix(" " + param['unit'])
+                spinbox.setMinimum(int(param['min'] * param['scale']))
+                spinbox.setMaximum(int(param['max'] * param['scale']))
 
-            spinbox.setMinimum(param['min'] * param['scale'])
-            spinbox.setMaximum(param['max'] * param['scale'])
             spinbox.setValue(0)
             setpoint_layout.addWidget(spinbox, row, 1)
 
