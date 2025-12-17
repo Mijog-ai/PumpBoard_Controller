@@ -1,0 +1,7 @@
+# Python Requirements for STM32F407 PumpBoard GUI
+# Install with: pip install -r requirements.txt
+
+PyQt5>=5.15.0
+pyqtgraph>=0.12.0
+pyserial>=3.5
+numpy>=1.20.0
