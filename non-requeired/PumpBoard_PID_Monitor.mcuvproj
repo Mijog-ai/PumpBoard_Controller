@@ -1,0 +1,189 @@
+[elf]
+file_path = PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27\OBJ\Template.elf
+relative_path = true
+
+[general]
+version = 2
+
+[settings]
+sample_frequency_hz = 100
+max_points = 10000
+max_viewport_points = 5000
+viewport_width_ms = 500.000000
+refresh_on_elf_change = false
+stop_acq_on_elf_change = false
+probe_type = 0
+target_name = 
+probe_mode = 0
+probe_speed_khz = 10000
+probe_sn = 
+should_log = false
+log_directory = 
+gdb_command = ./gdb
+recorder_enabled = false
+restart_on_group_change = false
+keep_connection = false
+ip_address = 127.0.0.1
+port = 3333
+
+[trace_settings]
+core_frequency = 160000
+trace_prescaler = 10
+max_points = 10000
+max_viewport_points_percent = 10
+viewport_width_ms = 5.000000
+trigger_channel = -1
+trigger_level = 0.900000
+timeout = 2
+probe_type = 0
+target_name = 
+probe_speed_khz = 10000
+probe_sn = 
+should_log = false
+log_directory = 
+
+[var0]
+name = Angle_Loop.Err_D_Period
+tracked_name = Angle_Loop.Err_D_Period
+address = 536871334
+type = 3
+color = 2586537037
+should_update_from_elf = true
+shift = 0
+mask = 4294967295
+high_level_type = 0
+value_to_write = 0.000000
+do_not_interpret_as_enum = false
+
+[var1]
+name = Angle_Loop.Kp
+tracked_name = Angle_Loop.Kp
+address = 536871272
+type = 3
+color = 4292560063
+should_update_from_elf = true
+shift = 0
+mask = 4294967295
+high_level_type = 0
+value_to_write = 0.000000
+do_not_interpret_as_enum = false
+
+[var2]
+name = DetectorFdbVal.g_s32_CurFdb_A
+tracked_name = DetectorFdbVal.g_s32_CurFdb_A
+address = 536871440
+type = 6
+color = 3891640187
+should_update_from_elf = true
+shift = 0
+mask = 4294967295
+high_level_type = 0
+value_to_write = 0.000000
+do_not_interpret_as_enum = false
+
+[var3]
+name = DetectorFdbVal.g_s32_CurFdb_B
+tracked_name = DetectorFdbVal.g_s32_CurFdb_B
+address = 536871444
+type = 6
+color = 4028986799
+should_update_from_elf = true
+shift = 0
+mask = 4294967295
+high_level_type = 0
+value_to_write = 0.000000
+do_not_interpret_as_enum = false
+
+[var4]
+name = DetectorFdbVal.g_u32_AngFdb
+tracked_name = DetectorFdbVal.g_u32_AngFdb
+address = 536871448
+type = 5
+color = 702945452
+should_update_from_elf = true
+shift = 0
+mask = 4294967295
+high_level_type = 0
+value_to_write = 0.000000
+do_not_interpret_as_enum = false
+
+[var5]
+name = DetectorFdbVal.g_u32_PressureFdb
+tracked_name = DetectorFdbVal.g_u32_PressureFdb
+address = 536871456
+type = 5
+color = 587322569
+should_update_from_elf = true
+shift = 0
+mask = 4294967295
+high_level_type = 0
+value_to_write = 0.000000
+do_not_interpret_as_enum = false
+
+[var6]
+name = InstructionSet.TiltAngRef
+tracked_name = InstructionSet.TiltAngRef
+address = 536870992
+type = 3
+color = 3819941758
+should_update_from_elf = true
+shift = 0
+mask = 4294967295
+high_level_type = 0
+value_to_write = 0.000000
+do_not_interpret_as_enum = false
+
+[var7]
+name = InstructionSet.g_u16_PerUnitPrsVal
+tracked_name = InstructionSet.g_u16_PerUnitPrsVal
+address = 536870994
+type = 3
+color = 438869274
+should_update_from_elf = true
+shift = 0
+mask = 4294967295
+high_level_type = 0
+value_to_write = 0.000000
+do_not_interpret_as_enum = false
+
+[var8]
+name = Pressure_Loop.Err_D_Period
+tracked_name = Pressure_Loop.Err_D_Period
+address = 536871398
+type = 3
+color = 2224385305
+should_update_from_elf = true
+shift = 0
+mask = 4294967295
+high_level_type = 0
+value_to_write = 0.000000
+do_not_interpret_as_enum = false
+
+[var9]
+name = g_u32_PWMOutput_B
+tracked_name = g_u32_PWMOutput_B
+address = 536871576
+type = 5
+color = 2430108126
+should_update_from_elf = true
+shift = 0
+mask = 4294967295
+high_level_type = 0
+value_to_write = 0.000000
+do_not_interpret_as_enum = false
+
+[group0]
+name = default group
+acquisition_type = 0
+
+[group0-plot0]
+name = Angle Control
+type = 3
+visibility = true
+x_axis_variable = InstructionSet.TiltAngRef
+
+[group0-plot1]
+name = Pressure Control
+type = 3
+visibility = true
+x_axis_variable = InstructionSet.g_u16_PerUnitPrsVal

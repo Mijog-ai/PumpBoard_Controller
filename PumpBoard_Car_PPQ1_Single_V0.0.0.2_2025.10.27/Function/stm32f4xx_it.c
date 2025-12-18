@@ -147,7 +147,7 @@ void TIM1_UP_TIM10_IRQHandler(void)
 
 }
 
-void ADC_IRQHandler(void)//ÑÓºó4us  ¹²Ö´ÐÐ2.16us
+void ADC_IRQHandler(void)//ï¿½Óºï¿½4us  ï¿½ï¿½Ö´ï¿½ï¿½2.16us
 {
 	
 }
@@ -159,23 +159,23 @@ void ADC_IRQHandler(void)//ÑÓºó4us  ¹²Ö´ÐÐ2.16us
 
 extern uint8_t sincos_flag;
 extern float freq;        // 50Hz
-extern uint16_t center;    // ÖÐÐÄÖµ1500
-extern uint16_t amp;        // Õñ·ù500
+extern uint16_t center;    // ï¿½ï¿½ï¿½ï¿½Öµ1500
+extern uint16_t amp;        // ï¿½ï¿½ï¿½500
 //u16 g_u16AD7949_rxBuf[ADC_CHANNEL_NUM * ADC_FILTER_FIFO] = {0};
 void SysTick_Handler(void)//100us
 { 
 	
-			Cal_MCU_AvgAdcVal_Fun();      // Ä£ÄâÊäÈë¼ì²â
-            TransAD7689DataIntoFIFO();   // ADÊý¾Ý°áÔË
-			CalAD7689AvgAngPrsData();    // ÂË²¨¼ÆËã
-            Cal_SolenoidCur();           // µçÁ÷¼ÆËã
-			Cal_PrsFbkDiff_Func();       // Ñ¹Á¦Î¢·Ö
-            Cal_AngFbkDiff_Func();       // ½Ç¶ÈÎ¢·Ö
-            CalAngFbkDiff_InPrsLoop_Func();
-			TiltAngleLoop_Func();        // ¿ØÖÆËã·¨
+			Cal_MCU_AvgAdcVal_Fun();      // Ä£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+      TransAD7689DataIntoFIFO();   // ADï¿½ï¿½ï¿½Ý°ï¿½ï¿½ï¿½
+			CalAD7689AvgAngPrsData();    // ï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½
+      Cal_SolenoidCur();           // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			Cal_PrsFbkDiff_Func();       // Ñ¹ï¿½ï¿½Î¢ï¿½ï¿½
+      Cal_AngFbkDiff_Func();       // ï¿½Ç¶ï¿½Î¢ï¿½ï¿½
+      CalAngFbkDiff_InPrsLoop_Func();
+			TiltAngleLoop_Func();        // ï¿½ï¿½ï¿½ï¿½ï¿½ã·¨
 			TimPeriodCnt_Func();
 
-            #ifndef PPQ_1
+      #ifndef PPQ_1
 
 			#endif
 
@@ -183,12 +183,12 @@ void SysTick_Handler(void)//100us
 }
 
 
-//²¶»ñ×´Ì¬
+//ï¿½ï¿½ï¿½ï¿½×´Ì¬
 void TIM3_IRQHandler(void)
 { 		
 	
 }
-//»ù²¨¿ØÖÆ
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void TIM5_IRQHandler(void)
 {	
 	

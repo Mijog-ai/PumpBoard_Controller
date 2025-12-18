@@ -615,6 +615,11 @@
               <FileType>1</FileType>
               <FilePath>..\HardWare_Init\Src\AD7689.c</FilePath>
             </File>
+            <File>
+              <FileName>Hw_CAN.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HardWare_Init\Src\Hw_CAN.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -664,6 +669,11 @@
               <FileName>Diagnose.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Function\Diagnose.c</FilePath>
+            </File>
+            <File>
+              <FileName>can_protocol.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\can_protocol.c</FilePath>
             </File>
           </Files>
         </Group>

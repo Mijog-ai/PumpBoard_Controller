@@ -1,5 +1,5 @@
 /*	
-* ÊµÏÖµ×²ãÇý¶¯µÄ±àÐ´
+* Êµï¿½Öµ×²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä±ï¿½Ð´
 * 
 */
 #include "application.h" 
@@ -16,34 +16,25 @@ sys_t sys;
 
 
 
-
 void Can1_Config(void)
 {
-		// 500k =6  250k = 12  125k = 24
-	if(user_parameter.baud_rate_canopen==125)
-	{
-		CAN1_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,24,CAN_Mode_Normal);
-		//CAN2_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,24,CAN_Mode_Normal);
-		
-	}
-	else if(user_parameter.baud_rate_canopen==250)
-	{
-		CAN1_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,12,CAN_Mode_Normal);
-		//CAN2_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,24,CAN_Mode_Normal);
-		
-	}
-	else if(user_parameter.baud_rate_canopen==500)
-	{
-		CAN1_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,6,CAN_Mode_Normal);
-		//CAN2_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,24,CAN_Mode_Normal);
-		
-	}
-	else//Ä¬ÈÏ250k
-	{
-		CAN1_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,12,CAN_Mode_Normal);
-		//CAN2_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,24,CAN_Mode_Normal);
-	
-	}
+    // 500k =6  250k = 12  125k = 24
+    if(user_parameter.baud_rate_canopen==125)
+    {
+        CAN1_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,24,CAN_Mode_Normal);
+    }
+    else if(user_parameter.baud_rate_canopen==250)
+    {
+        CAN1_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,12,CAN_Mode_Normal);
+    }
+    else if(user_parameter.baud_rate_canopen==500)
+    {
+        CAN1_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,6,CAN_Mode_Normal);
+    }
+    else  // Default 250k
+    {
+        CAN1_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,12,CAN_Mode_Normal);
+    }
 }
 void Can1_Reset_Config(void)
 {
@@ -60,7 +51,7 @@ void Can1_Reset_Config(void)
 	{
 		CAN1_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,6,CAN_Mode_Normal);
 	}
-	else//Ä¬ÈÏ250k
+	else//Ä¬ï¿½ï¿½250k
 	{
 		CAN1_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,12,CAN_Mode_Normal);
 	}
@@ -86,7 +77,7 @@ void Can2_Config(void)
 		//CAN2_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,24,CAN_Mode_Normal);
 		
 	}
-	else//Ä¬ÈÏ250k
+	else//Ä¬ï¿½ï¿½250k
 	{
 		CAN2_Mode_Init(CAN_SJW_1tq,CAN_BS2_2tq,CAN_BS1_11tq,12,CAN_Mode_Normal);
 		//CAN2_Mode_Init(CAN_SJW_1tq,CAN_BS2_6tq,CAN_BS1_7tq,24,CAN_Mode_Normal);
@@ -108,7 +99,7 @@ void Can2_Reset_Config(void)
 	{
 		CAN2_Mode_Init(CAN_SJW_1tq,CAN_BS2_2tq,CAN_BS1_11tq,6,CAN_Mode_Normal);
 	}
-	else//Ä¬ÈÏ250k
+	else//Ä¬ï¿½ï¿½250k
 	{
 		CAN2_Mode_Init(CAN_SJW_1tq,CAN_BS2_2tq,CAN_BS1_11tq,12,CAN_Mode_Normal);
 	}
@@ -119,7 +110,7 @@ void judder_basic_parameter_updata_process(void)
 	cnt++;
 	if(cnt>=100)
 	{
-			cnt=0;//100ms ¸üÐÂÒ»´Î
+			cnt=0;//100ms ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½
 			if(sys.judder_basic_duty>95)
 			{
 				sys.judder_basic_duty=95;
