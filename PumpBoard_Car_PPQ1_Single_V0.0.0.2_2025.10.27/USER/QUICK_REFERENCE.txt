@@ -1,0 +1,147 @@
+================================================================================
+  STM32F407ZE PumpCtrl - QUICK REFERENCE CARD
+================================================================================
+
+HARDWARE TEST (Current Status)
+--------------------------------------------------------------------------------
+Status: TEST FIRMWARE BUILT & READY
+Test:   GPIO LED Blink Test
+Binary: out\PumpCtrl\PPQ_Ctrl\PumpCtrl_TEST.bin
+
+TO RUN TEST:
+  > run_test.bat
+
+EXPECTED RESULT:
+  - LED on PF9 blinks (100ms on/off)
+  - LED on PF10 blinks (100ms on/off)
+  - Alternating pattern
+
+================================================================================
+
+COMMON COMMANDS
+--------------------------------------------------------------------------------
+Build normal firmware:        build.bat
+Flash to hardware:            flash.bat
+Run hardware test:            run_test.bat
+Restore normal firmware:      restore_main.bat
+Start debug session:          debug_session.bat
+
+================================================================================
+
+TEST MODES AVAILABLE
+--------------------------------------------------------------------------------
+1. GPIO Test    - LED blink pattern (CURRENT)
+2. ADC Test     - Analog input reading
+3. PWM Test     - Timer PWM output
+4. SPI Test     - SPI loopback communication
+5. All Tests    - Sequential test pattern
+
+Change test: run_test.bat → option 2
+
+================================================================================
+
+PIN ASSIGNMENTS (Verify with your board!)
+--------------------------------------------------------------------------------
+GPIO Test:
+  PF9  - LED 1 (Status)
+  PF10 - LED 2 (Status)
+
+ADC Test:
+  PA0  - Analog input (0-3.3V)
+  PF9  - Status LED
+
+PWM Test:
+  PA1  - PWM output (TIM2_CH2)
+  PF9  - Status LED
+
+SPI Test:
+  PC10 - SCK
+  PC11 - MISO (connect to MOSI for loopback)
+  PC12 - MOSI (connect to MISO for loopback)
+  PF9  - Green LED (success)
+  PF10 - Red LED (fail)
+
+================================================================================
+
+DEBUGGER VARIABLES TO WATCH
+--------------------------------------------------------------------------------
+g_test_counter      - Test cycle counter (increments each loop)
+g_test_adc_value    - ADC reading (0-4095) [ADC test only]
+g_test_spi_result   - SPI received byte [SPI test only]
+
+================================================================================
+
+TROUBLESHOOTING
+--------------------------------------------------------------------------------
+No LED activity:
+  - Check power supply (3.3V)
+  - Verify LED connections
+  - Check pin assignments match your board
+  - Ensure firmware flashed successfully
+
+Build fails:
+  - Check cbuild is installed
+  - Verify compiler path
+  - Try: cbuild --clean then rebuild
+
+Flash fails:
+  - Check debugger connection (ST-Link/J-Link)
+  - Verify SWDIO, SWCLK, GND connected
+  - Try different USB port
+  - Check BOOT0 pin (should be LOW)
+
+================================================================================
+
+DOCUMENTATION
+--------------------------------------------------------------------------------
+HARDWARE_TEST_SUMMARY.md   - Test overview & status
+RUN_HARDWARE_TEST.md       - Detailed test guide
+DEBUG_GUIDE.md             - Complete debugging guide
+DEPLOYMENT_CHECKLIST.md    - Production deployment guide
+
+================================================================================
+
+WORKFLOW
+--------------------------------------------------------------------------------
+1. Test Hardware:
+   > run_test.bat
+   Select option 1 to flash
+   Verify LEDs blink
+
+2. Try Other Tests:
+   > run_test.bat
+   Select option 2 to change test
+   Flash and verify
+
+3. Restore Normal Firmware:
+   > restore_main.bat
+   
+4. Deploy to Production:
+   Follow DEPLOYMENT_CHECKLIST.md
+
+================================================================================
+
+SAFETY REMINDERS
+--------------------------------------------------------------------------------
+✓ Test firmware is safe - doesn't control pump
+✓ Watchdog disabled during tests
+✓ Tests run indefinitely - power cycle to stop
+✓ Original firmware backed up to main.c.backup
+✓ Never apply > 3.3V to GPIO pins
+
+================================================================================
+
+CURRENT STATUS
+--------------------------------------------------------------------------------
+[✓] Project configured
+[✓] Build system working
+[✓] Test firmware compiled
+[✓] Binary generated
+[✓] Ready to flash
+[ ] Hardware tested          <-- YOU ARE HERE
+[ ] Normal firmware restored
+[ ] Production deployment
+
+NEXT STEP: Run > run_test.bat
+
+================================================================================
