@@ -1,0 +1,14 @@
+build-idx:
+  generated-by: csolution version 2.12.0+p41-gfeadfc5e
+  csolution: PumpCtrl.csolution.yml
+  tmpdir: tmp
+  cprojects:
+    - cproject: PumpCtrl.cproject.yml
+  cbuilds:
+    - cbuild: out/PumpCtrl/PPQ_Ctrl/PumpCtrl+PPQ_Ctrl.cbuild.yml
+      project: PumpCtrl
+      configuration: +PPQ_Ctrl
+      messages:
+        info:
+          - PumpCtrl.cbuild-pack.yml - file is already up-to-date
+          - PumpCtrl+PPQ_Ctrl.cbuild.yml - file generated successfully

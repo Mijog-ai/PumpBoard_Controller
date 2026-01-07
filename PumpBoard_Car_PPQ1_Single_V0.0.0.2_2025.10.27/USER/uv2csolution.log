@@ -1,0 +1,13 @@
+1 out of 1 target(s) converted
+Created solution: H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USER/PumpCtrl.csolution.yml
+With projects:
+- H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USER/PumpCtrl.cproject.yml
+Error: 0 error(s), 5 warning(s):
+Warnings:
+	For target "PPQ_Ctrl" file 'H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USB/STM32_USB_Device_Library/Class/CDC/Inc' does not exists
+	For target "PPQ_Ctrl" file 'H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USB/STM32_USB_Device_Library/Core/Inc' does not exists
+	For target "PPQ_Ctrl" file 'H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USB/USB_APP' does not exists
+	For target "PPQ_Ctrl" file 'H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USB/USB_HAL' does not exists
+	The target "PPQ_Ctrl" is configured with following user commands which should be run manually:
+            After Build/Rebuild
+                fromelf.exe --bin -o "PumpCtrl_V0.1.0.4.bin" "#L"

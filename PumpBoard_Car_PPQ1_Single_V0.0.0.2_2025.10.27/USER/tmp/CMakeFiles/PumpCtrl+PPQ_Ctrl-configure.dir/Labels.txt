@@ -1,0 +1,10 @@
+# Target labels
+ PumpCtrl+PPQ_Ctrl
+# Source files and their labels
+H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USER/tmp/CMakeFiles/PumpCtrl+PPQ_Ctrl-configure
+H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USER/tmp/CMakeFiles/PumpCtrl+PPQ_Ctrl-configure.rule
+H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USER/tmp/PumpCtrl+PPQ_Ctrl/src/PumpCtrl+PPQ_Ctrl-stamp/PumpCtrl+PPQ_Ctrl-configure.rule
+H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USER/tmp/PumpCtrl+PPQ_Ctrl/src/PumpCtrl+PPQ_Ctrl-stamp/PumpCtrl+PPQ_Ctrl-patch.rule
+H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USER/tmp/PumpCtrl+PPQ_Ctrl/src/PumpCtrl+PPQ_Ctrl-stamp/PumpCtrl+PPQ_Ctrl-update.rule
+H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USER/tmp/PumpCtrl+PPQ_Ctrl/src/PumpCtrl+PPQ_Ctrl-stamp/PumpCtrl+PPQ_Ctrl-download.rule
+H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USER/tmp/PumpCtrl+PPQ_Ctrl/src/PumpCtrl+PPQ_Ctrl-stamp/PumpCtrl+PPQ_Ctrl-mkdir.rule

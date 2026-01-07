@@ -110,7 +110,7 @@ int main(void)
 	//==========================================================
 	// SIMULATION TEST CODE - Set to 0 for real hardware!
 	//==========================================================
-	#if 1  // Set to 0 for real hardware
+	#if 0  // Set to 0 for real hardware
 	{
 		// Enable simulation mode (prevents ADC from overwriting values)
 		g_u8_SimulationMode = 1;

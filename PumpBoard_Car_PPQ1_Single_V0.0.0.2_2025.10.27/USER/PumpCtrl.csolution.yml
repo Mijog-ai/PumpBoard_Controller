@@ -1,0 +1,10 @@
+solution:
+  created-by: uv2csolution@1.6.0
+  created-for: CMSIS-Toolbox@2.7.0
+  compiler: AC6@6.24.0
+  target-types:
+    - type: PPQ_Ctrl
+      device: STM32F407ZETx
+      optimize: debug
+  projects:
+    - project: PumpCtrl.cproject.yml

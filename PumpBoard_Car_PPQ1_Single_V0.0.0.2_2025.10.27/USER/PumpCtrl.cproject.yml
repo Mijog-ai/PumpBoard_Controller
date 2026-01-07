@@ -1,0 +1,140 @@
+project:
+  packs:
+    - pack: Keil::STM32F4xx_DFP@^3.1.1
+  setups:
+    - setup: Options for PPQ_Ctrl
+      processor:
+        fpu: sp
+      add-path:
+        - ../CORE
+        - ../Function
+        - ../FWLIB/inc
+        - ../HardWare_Init/Inc
+        - ../USB/STM32_USB_Device_Library/Class/CDC/Inc
+        - ../USB/STM32_USB_Device_Library/Core/Inc
+        - ../USB/USB_APP
+        - ../USB/USB_HAL
+      debug: "on"
+      define:
+        - STM32F40_41xxx
+        - STM32F407xx
+        - USE_STDPERIPH_DRIVER
+        - USE_USB_FS
+        - __MICROLIB
+      define-asm:
+        - __MICROLIB
+      misc:
+        - C:
+            - -std=c99
+          C-CPP:
+            - -fno-rtti
+            - -funsigned-char
+            - -fshort-enums
+            - -fshort-wchar
+            - -fno-function-sections
+            - -Wno-packed
+            - -Wno-missing-variable-declarations
+            - -Wno-missing-prototypes
+            - -Wno-missing-noreturn
+            - -Wno-sign-conversion
+            - -Wno-nonportable-include-path
+            - -Wno-reserved-id-macro
+            - -Wno-unused-macros
+            - -Wno-documentation-unknown-command
+            - -Wno-documentation
+            - -Wno-license-management
+            - -Wno-parentheses-equality
+          CPP:
+            - -xc++
+            - -std=c++11
+            - -fno-exceptions
+          ASM:
+            - -masm=auto
+          Link:
+            - --library_type=microlib
+            - --map
+            - --load_addr_map_info
+            - --xref
+            - --callgraph
+            - --symbols
+            - --info sizes
+            - --info totals
+            - --info unused
+            - --info veneers
+            - --strict
+            - --summary_stderr
+            - --info summarysizes
+  linker:
+    - script: PumpCtrl_PPQ_Ctrl.sct
+  groups:
+    - group: USER
+      files:
+        - file: main.c
+    - group: CORE
+      files:
+        - file: ../CORE/startup_stm32f40_41xxx.s
+          misc:
+            - ASM:
+                - -masm=auto
+        - file: ../CORE/system_stm32f4xx.c
+    - group: FWLIB
+      files:
+        - file: ../FWLIB/src/misc.c
+        - file: ../FWLIB/src/stm32f4xx_adc.c
+        - file: ../FWLIB/src/stm32f4xx_can.c
+        - file: ../FWLIB/src/stm32f4xx_crc.c
+        - file: ../FWLIB/src/stm32f4xx_cryp.c
+        - file: ../FWLIB/src/stm32f4xx_cryp_aes.c
+        - file: ../FWLIB/src/stm32f4xx_cryp_des.c
+        - file: ../FWLIB/src/stm32f4xx_cryp_tdes.c
+        - file: ../FWLIB/src/stm32f4xx_dac.c
+        - file: ../FWLIB/src/stm32f4xx_dbgmcu.c
+        - file: ../FWLIB/src/stm32f4xx_dcmi.c
+        - file: ../FWLIB/src/stm32f4xx_dma2d.c
+        - file: ../FWLIB/src/stm32f4xx_dma.c
+        - file: ../FWLIB/src/stm32f4xx_exti.c
+        - file: ../FWLIB/src/stm32f4xx_flash.c
+        - file: ../FWLIB/src/stm32f4xx_flash_ramfunc.c
+        - file: ../FWLIB/src/stm32f4xx_fsmc.c
+        - file: ../FWLIB/src/stm32f4xx_hash_md5.c
+        - file: ../FWLIB/src/stm32f4xx_gpio.c
+        - file: ../FWLIB/src/stm32f4xx_hash.c
+        - file: ../FWLIB/src/stm32f4xx_hash_sha1.c
+        - file: ../FWLIB/src/stm32f4xx_i2c.c
+        - file: ../FWLIB/src/stm32f4xx_iwdg.c
+        - file: ../FWLIB/src/stm32f4xx_ltdc.c
+        - file: ../FWLIB/src/stm32f4xx_pwr.c
+        - file: ../FWLIB/src/stm32f4xx_rcc.c
+        - file: ../FWLIB/src/stm32f4xx_rng.c
+        - file: ../FWLIB/src/stm32f4xx_rtc.c
+        - file: ../FWLIB/src/stm32f4xx_sai.c
+        - file: ../FWLIB/src/stm32f4xx_sdio.c
+        - file: ../FWLIB/src/stm32f4xx_spi.c
+        - file: ../FWLIB/src/stm32f4xx_syscfg.c
+        - file: ../FWLIB/src/stm32f4xx_tim.c
+        - file: ../FWLIB/src/stm32f4xx_usart.c
+        - file: ../FWLIB/src/stm32f4xx_wwdg.c
+    - group: HardWare_Init
+      files:
+        - file: ../HardWare_Init/Src/Hw_SPI.c
+        - file: ../HardWare_Init/Src/Hw_ADC.c
+        - file: ../HardWare_Init/Src/Hw_GPIO.c
+        - file: ../HardWare_Init/Src/Hw_TIM.c
+        - file: ../HardWare_Init/Src/AD7689.c
+        - file: ../HardWare_Init/Src/Hw_CAN.c
+    - group: Function
+      files:
+        - file: ../Function/algorithm.c
+        - file: ../Function/analog_input.c
+        - file: ../Function/application.c
+        - file: ../Function/flash.c
+        - file: ../Function/stm32f4xx_it.c
+        - file: ../Function/Task.c
+        - file: ../Function/CheckTable.c
+        - file: ../Function/limit.c
+        - file: ../Function/Diagnose.c
+        - file: ../Function/can_protocol.c
+    - group: LIB
+      files:
+        - file: ../LIB/Deadzone_Current.lib
+        - file: ../LIB/PID_AREA.lib

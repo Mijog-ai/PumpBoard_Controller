@@ -1,0 +1,52 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USER/tmp/CMakeFiles/PumpCtrl+PPQ_Ctrl"
+		},
+		{
+			"file" : "H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USER/tmp/CMakeFiles/PumpCtrl+PPQ_Ctrl.rule"
+		},
+		{
+			"file" : "H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USER/tmp/CMakeFiles/PumpCtrl+PPQ_Ctrl-complete.rule"
+		},
+		{
+			"file" : "H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USER/tmp/PumpCtrl+PPQ_Ctrl/src/PumpCtrl+PPQ_Ctrl-stamp/PumpCtrl+PPQ_Ctrl-build.rule"
+		},
+		{
+			"file" : "H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USER/tmp/PumpCtrl+PPQ_Ctrl/src/PumpCtrl+PPQ_Ctrl-stamp/PumpCtrl+PPQ_Ctrl-configure.rule"
+		},
+		{
+			"file" : "H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USER/tmp/PumpCtrl+PPQ_Ctrl/src/PumpCtrl+PPQ_Ctrl-stamp/PumpCtrl+PPQ_Ctrl-database.rule"
+		},
+		{
+			"file" : "H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USER/tmp/PumpCtrl+PPQ_Ctrl/src/PumpCtrl+PPQ_Ctrl-stamp/PumpCtrl+PPQ_Ctrl-download.rule"
+		},
+		{
+			"file" : "H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USER/tmp/PumpCtrl+PPQ_Ctrl/src/PumpCtrl+PPQ_Ctrl-stamp/PumpCtrl+PPQ_Ctrl-executes.rule"
+		},
+		{
+			"file" : "H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USER/tmp/PumpCtrl+PPQ_Ctrl/src/PumpCtrl+PPQ_Ctrl-stamp/PumpCtrl+PPQ_Ctrl-install.rule"
+		},
+		{
+			"file" : "H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USER/tmp/PumpCtrl+PPQ_Ctrl/src/PumpCtrl+PPQ_Ctrl-stamp/PumpCtrl+PPQ_Ctrl-mkdir.rule"
+		},
+		{
+			"file" : "H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USER/tmp/PumpCtrl+PPQ_Ctrl/src/PumpCtrl+PPQ_Ctrl-stamp/PumpCtrl+PPQ_Ctrl-patch.rule"
+		},
+		{
+			"file" : "H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USER/tmp/PumpCtrl+PPQ_Ctrl/src/PumpCtrl+PPQ_Ctrl-stamp/PumpCtrl+PPQ_Ctrl-test.rule"
+		},
+		{
+			"file" : "H:/PumpBoard_Controller/PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27/USER/tmp/PumpCtrl+PPQ_Ctrl/src/PumpCtrl+PPQ_Ctrl-stamp/PumpCtrl+PPQ_Ctrl-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"PumpCtrl+PPQ_Ctrl"
+		],
+		"name" : "PumpCtrl+PPQ_Ctrl"
+	}
+}

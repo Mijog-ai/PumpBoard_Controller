@@ -1,0 +1,250 @@
+build:
+  generated-by: csolution version 2.12.0+p41-gfeadfc5e
+  solution: ../../../PumpCtrl.csolution.yml
+  project: ../../../PumpCtrl.cproject.yml
+  context: PumpCtrl+PPQ_Ctrl
+  compiler: AC6@6.24.0
+  device: STMicroelectronics::STM32F407ZETx
+  device-pack: Keil::STM32F4xx_DFP@3.1.1
+  device-books:
+    - name: https://www.st.com/resource/en/reference_manual/rm0090-stm32f405415-stm32f407417-stm32f427437-and-stm32f429439-advanced-armbased-32bit-mcus-stmicroelectronics.pdf
+      title: STM32F405/415 STM32F407/417 STM32F427/437 STM32F429/439 Reference Manual
+    - name: https://www.st.com/resource/en/datasheet/stm32f405rg.pdf
+      title: STM32F405/407 Datasheet
+    - name: https://www.st.com/resource/en/user_manual/um1725-description-of-stm32f4-hal-and-lowlayer-drivers-stmicroelectronics.pdf
+      title: STM32F4xx HAL Drivers
+    - name: https://developer.arm.com/documentation/dui0553/latest
+      title: Cortex-M4 Generic User Guide
+  dbgconf:
+    - file: ../../../.cmsis/PumpCtrl+PPQ_Ctrl.dbgconf
+      version: 1.0.1
+  processor:
+    dsp: on
+    endian: little
+    fpu: sp
+    core: Cortex-M4
+  packs:
+    - pack: Keil::STM32F4xx_DFP@3.1.1
+      path: ${CMSIS_PACK_ROOT}/Keil/STM32F4xx_DFP/3.1.1
+  optimize: debug
+  debug: on
+  misc:
+    ASM:
+      - -masm=auto
+    C:
+      - -std=c99
+      - -fno-rtti
+      - -funsigned-char
+      - -fshort-enums
+      - -fshort-wchar
+      - -fno-function-sections
+      - -Wno-packed
+      - -Wno-missing-variable-declarations
+      - -Wno-missing-prototypes
+      - -Wno-missing-noreturn
+      - -Wno-sign-conversion
+      - -Wno-nonportable-include-path
+      - -Wno-reserved-id-macro
+      - -Wno-unused-macros
+      - -Wno-documentation-unknown-command
+      - -Wno-documentation
+      - -Wno-license-management
+      - -Wno-parentheses-equality
+    CPP:
+      - -xc++
+      - -std=c++11
+      - -fno-exceptions
+      - -fno-rtti
+      - -funsigned-char
+      - -fshort-enums
+      - -fshort-wchar
+      - -fno-function-sections
+      - -Wno-packed
+      - -Wno-missing-variable-declarations
+      - -Wno-missing-prototypes
+      - -Wno-missing-noreturn
+      - -Wno-sign-conversion
+      - -Wno-nonportable-include-path
+      - -Wno-reserved-id-macro
+      - -Wno-unused-macros
+      - -Wno-documentation-unknown-command
+      - -Wno-documentation
+      - -Wno-license-management
+      - -Wno-parentheses-equality
+    Link:
+      - --library_type=microlib
+      - --map
+      - --load_addr_map_info
+      - --xref
+      - --callgraph
+      - --symbols
+      - --info sizes
+      - --info totals
+      - --info unused
+      - --info veneers
+      - --strict
+      - --summary_stderr
+      - --info summarysizes
+  define:
+    - STM32F40_41xxx
+    - STM32F407xx
+    - USE_STDPERIPH_DRIVER
+    - USE_USB_FS
+    - __MICROLIB
+    - STM32F407xx
+  define-asm:
+    - __MICROLIB
+    - STM32F407xx
+  add-path:
+    - ../../../../CORE
+    - ../../../../Function
+    - ../../../../FWLIB/inc
+    - ../../../../HardWare_Init/Inc
+    - ../../../../USB/STM32_USB_Device_Library/Class/CDC/Inc
+    - ../../../../USB/STM32_USB_Device_Library/Core/Inc
+    - ../../../../USB/USB_APP
+    - ../../../../USB/USB_HAL
+  output-dirs:
+    intdir: ../../../tmp
+    outdir: .
+    rtedir: ../../../RTE
+  output:
+    - type: elf
+      file: PumpCtrl.axf
+  linker:
+    script: ../../../PumpCtrl_PPQ_Ctrl.sct
+  groups:
+    - group: USER
+      files:
+        - file: ../../../main.c
+          category: sourceC
+    - group: CORE
+      files:
+        - file: ../../../../CORE/startup_stm32f40_41xxx.s
+          category: sourceAsm
+          misc:
+            ASM:
+              - -masm=auto
+        - file: ../../../../CORE/system_stm32f4xx.c
+          category: sourceC
+    - group: FWLIB
+      files:
+        - file: ../../../../FWLIB/src/misc.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_adc.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_can.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_crc.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_cryp.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_cryp_aes.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_cryp_des.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_cryp_tdes.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_dac.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_dbgmcu.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_dcmi.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_dma2d.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_dma.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_exti.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_flash.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_flash_ramfunc.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_fsmc.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_hash_md5.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_gpio.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_hash.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_hash_sha1.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_i2c.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_iwdg.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_ltdc.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_pwr.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_rcc.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_rng.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_rtc.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_sai.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_sdio.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_spi.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_syscfg.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_tim.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_usart.c
+          category: sourceC
+        - file: ../../../../FWLIB/src/stm32f4xx_wwdg.c
+          category: sourceC
+    - group: HardWare_Init
+      files:
+        - file: ../../../../HardWare_Init/Src/Hw_SPI.c
+          category: sourceC
+        - file: ../../../../HardWare_Init/Src/Hw_ADC.c
+          category: sourceC
+        - file: ../../../../HardWare_Init/Src/Hw_GPIO.c
+          category: sourceC
+        - file: ../../../../HardWare_Init/Src/Hw_TIM.c
+          category: sourceC
+        - file: ../../../../HardWare_Init/Src/AD7689.c
+          category: sourceC
+        - file: ../../../../HardWare_Init/Src/Hw_CAN.c
+          category: sourceC
+    - group: Function
+      files:
+        - file: ../../../../Function/algorithm.c
+          category: sourceC
+        - file: ../../../../Function/analog_input.c
+          category: sourceC
+        - file: ../../../../Function/application.c
+          category: sourceC
+        - file: ../../../../Function/flash.c
+          category: sourceC
+        - file: ../../../../Function/stm32f4xx_it.c
+          category: sourceC
+        - file: ../../../../Function/Task.c
+          category: sourceC
+        - file: ../../../../Function/CheckTable.c
+          category: sourceC
+        - file: ../../../../Function/limit.c
+          category: sourceC
+        - file: ../../../../Function/Diagnose.c
+          category: sourceC
+        - file: ../../../../Function/can_protocol.c
+          category: sourceC
+    - group: LIB
+      files:
+        - file: ../../../../LIB/Deadzone_Current.lib
+          category: library
+        - file: ../../../../LIB/PID_AREA.lib
+          category: library
+  licenses:
+    - license: Apache-2.0
+      packs:
+        - pack: Keil::STM32F4xx_DFP@3.1.1
+    - license: BSD-3-Clause
+      packs:
+        - pack: Keil::STM32F4xx_DFP@3.1.1
