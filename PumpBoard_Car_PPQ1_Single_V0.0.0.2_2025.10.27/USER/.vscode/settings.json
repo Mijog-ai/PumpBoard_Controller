@@ -1,5 +1,7 @@
 {
     "clangd.arguments": [
         "--compile-commands-dir=h:\\PumpBoard_Controller\\PumpBoard_Car_PPQ1_Single_V0.0.0.2_2025.10.27\\USER\\out\\PumpCtrl\\PPQ_Ctrl"
-    ]
+    ],
+    "debug.hideSlowPreLaunchWarning": true,
+    "debug.showInStatusBar": "never"
 }
