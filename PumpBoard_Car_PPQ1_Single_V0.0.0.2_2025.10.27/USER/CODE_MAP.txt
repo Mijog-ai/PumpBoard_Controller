@@ -1,0 +1,364 @@
+================================================================================
+                    PUMPCTRL CODE MAP - VISUAL GUIDE
+================================================================================
+
+EXECUTION FLOW (What happens when you power on)
+================================================================================
+
+1. POWER ON
+   ↓
+2. startup_stm32f40_41xxx.s (Assembly)
+   - Sets up stack
+   - Initializes memory
+   - Jumps to main()
+   ↓
+3. main.c → main()
+   ├─► NVIC_PriorityGroupConfig()     [Set interrupt priorities]
+   ├─► GPIO_Init_Func()               [Setup all GPIO pins]
+   ├─► InitUserParaProcess()          [Load parameters from flash]
+   ├─► SysTickConfig()                [Setup 100µs timer]
+   ├─► SPI3_Int()                     [Initialize SPI for ADC]
+   ├─► TIM2_init()                    [Setup PWM timer]
+   ├─► Adc1_Analog_Input_Init()       [Setup internal ADC]
+   ├─► AD7689InitFunc()               [Setup external ADC]
+   ├─► SensorModeChangeFunc()         [Configure sensor modes]
+   ├─► CurDetectionRangeChose()       [Set current ranges]
+   └─► TaskParmInit()                 [Initialize task system]
+   ↓
+4. while(1) MAIN LOOP
+   └─► TaskProcess()  ◄─── Called every 100µs by SysTick
+       │
+       └─► [See TASK EXECUTION FLOW below]
+
+================================================================================
+
+TASK EXECUTION FLOW (Every 100µs)
+================================================================================
+
+TaskProcess() in Task.c
+│
+├─► FAST TASKS (100µs) - Every cycle
+│   │
+│   ├─► Read Sensors (analog_input.c)
+│   │   ├─► ADC1 channels (internal ADC)
+│   │   ├─► AD7689 (external ADC via SPI)
+│   │   ├─► Apply filters
+│   │   └─► Convert to engineering units
+│   │
+│   ├─► Run Control Loops (application.c)
+│   │   ├─► Check enable flags
+│   │   ├─► Pressure Control Loop
+│   │   │   ├─► Calculate error
+│   │   │   ├─► PID algorithm (algorithm.c)
+│   │   │   └─► Output angle command
+│   │   ├─► Angle Control Loop
+│   │   │   ├─► Calculate error
+│   │   │   ├─► PID algorithm
+│   │   │   └─► Output current command
+│   │   ├─► Power Control Loop
+│   │   │   ├─► Calculate power
+│   │   │   └─► Limit if too high
+│   │   └─► Leak Detection
+│   │       └─► Monitor for anomalies
+│   │
+│   ├─► Apply Limits (limit.c)
+│   │   ├─► Current limits
+│   │   ├─► Pressure limits
+│   │   ├─► Angle limits
+│   │   └─► Rate limits
+│   │
+│   └─► Update Outputs (Hw_TIM.c)
+│       └─► Set PWM duty cycles
+│           ├─► TIM2_CCR2 (Channel A)
+│           └─► TIM2_CCR4 (Channel B)
+│
+├─► MEDIUM TASKS (1ms) - Every 10 cycles
+│   │
+│   ├─► CAN Communication (can_protocol.c)
+│   │   ├─► Process received messages
+│   │   │   ├─► Commands
+│   │   │   ├─► Parameter updates
+│   │   │   └─► Requests
+│   │   └─► Send status messages
+│   │       ├─► Sensor values
+│   │       ├─► Control outputs
+│   │       └─► Fault status
+│   │
+│   └─► Diagnostics (Diagnose.c)
+│       ├─► Check sensor validity
+│       ├─► Monitor communication
+│       ├─► Detect faults
+│       └─► Update fault flags
+│
+└─► SLOW TASKS (10ms) - Every 100 cycles
+    │
+    ├─► Parameter Management
+    │   ├─► Check for parameter changes
+    │   └─► Validate new parameters
+    │
+    ├─► Flash Operations (flash.c)
+    │   └─► Save parameters (if requested)
+    │
+    └─► Watchdog Feed
+        └─► IWDG_Feed() - Keep system alive
+
+================================================================================
+
+DATA STRUCTURES (Key Variables)
+================================================================================
+
+GLOBAL COMMAND/SETPOINT STRUCTURE
+┌─────────────────────────────────────┐
+│ InstructionSet                      │
+├─────────────────────────────────────┤
+│ TiltAngRef          [Target angle]  │
+│ g_u16_PerUnitPrsVal [Target press]  │
+│ Cur_A_Ref           [Current A]     │
+│ Cur_B_Ref           [Current B]     │
+└─────────────────────────────────────┘
+         ↓ (Commands from CAN or local)
+         ↓
+┌─────────────────────────────────────┐
+│ Control Algorithms                  │
+│ (application.c)                     │
+└─────────────────────────────────────┘
+         ↓ (Calculates outputs)
+         ↓
+┌─────────────────────────────────────┐
+│ PWM Outputs                         │
+├─────────────────────────────────────┤
+│ g_u16_TestTim2_CCR2 [PWM Ch2]      │
+│ g_u16_TestTim2_CCR4 [PWM Ch4]      │
+└─────────────────────────────────────┘
+
+GLOBAL FEEDBACK STRUCTURE
+┌─────────────────────────────────────┐
+│ DetectorFdbVal                      │
+├─────────────────────────────────────┤
+│ g_u32_AngFdb        [Angle sensor]  │
+│ g_s32_CurFdb_A      [Current A]     │
+│ g_s32_CurFdb_B      [Current B]     │
+│ g_u32_PrsFdb        [Pressure]      │
+└─────────────────────────────────────┘
+         ↑ (Read from sensors)
+         ↑
+┌─────────────────────────────────────┐
+│ Sensor Reading                      │
+│ (analog_input.c)                    │
+└─────────────────────────────────────┘
+         ↑ (Raw ADC values)
+         ↑
+┌─────────────────────────────────────┐
+│ ADC Hardware                        │
+├─────────────────────────────────────┤
+│ ADC1 (Internal)                     │
+│ AD7689 (External via SPI)           │
+└─────────────────────────────────────┘
+
+CONFIGURATION STRUCTURE
+┌─────────────────────────────────────┐
+│ User_Parameter                      │
+├─────────────────────────────────────┤
+│ PpqEna              [Enable flags]  │
+│ ├─► PumpStrt_Ena                    │
+│ ├─► PrsLoop_Ena                     │
+│ ├─► AngLeak_Ena                     │
+│ └─► PwrLoop_Ena                     │
+│                                     │
+│ PID_Pressure        [PID gains]     │
+│ ├─► Kp, Ki, Kd                      │
+│ └─► Limits                          │
+│                                     │
+│ PID_Angle           [PID gains]     │
+│ └─► Kp, Ki, Kd                      │
+└─────────────────────────────────────┘
+         ↑ (Loaded from flash)
+         ↑
+┌─────────────────────────────────────┐
+│ Flash Memory                        │
+│ (flash.c)                           │
+└─────────────────────────────────────┘
+
+================================================================================
+
+CONTROL LOOP DETAIL (Pressure Control Example)
+================================================================================
+
+Target Pressure (from CAN or local)
+         ↓
+    ┌────────┐
+    │ Error  │ = Target - Actual
+    └────┬───┘
+         ↓
+    ┌────────────────────────────────┐
+    │ PID Controller                 │
+    │ (algorithm.c)                  │
+    ├────────────────────────────────┤
+    │ P = Kp × Error                 │
+    │ I = Ki × ∫Error dt             │
+    │ D = Kd × dError/dt             │
+    │                                │
+    │ Output = P + I + D             │
+    └────┬───────────────────────────┘
+         ↓
+    ┌────────┐
+    │ Limits │ (limit.c)
+    └────┬───┘
+         ↓
+    Angle Command
+         ↓
+    ┌────────────────┐
+    │ Angle Control  │ (Inner loop)
+    │ Loop           │
+    └────┬───────────┘
+         ↓
+    Current Command
+         ↓
+    ┌────────────────┐
+    │ PWM Output     │ (Hw_TIM.c)
+    └────┬───────────┘
+         ↓
+    Solenoid Valve
+         ↓
+    Swash Plate Angle
+         ↓
+    Pump Displacement
+         ↓
+    Actual Pressure ──────┐
+         ↑                │
+         └────────────────┘
+         (Feedback loop)
+
+================================================================================
+
+FILE DEPENDENCIES (What includes what)
+================================================================================
+
+main.c
+├─► application.h
+│   ├─► algorithm.h
+│   ├─► analog_input.h
+│   └─► limit.h
+├─► Task.h
+├─► AD7689.h
+├─► Hw_spi.h
+├─► Hw_ADC.h
+└─► gpio.h
+
+application.c
+├─► stm32f4xx.h (STM32 HAL)
+├─► algorithm.h
+├─► analog_input.h
+├─► limit.h
+├─► Diagnose.h
+└─► can_protocol.h
+
+Task.c
+├─► application.h
+├─► analog_input.h
+├─► can_protocol.h
+└─► Diagnose.h
+
+================================================================================
+
+INTERRUPT PRIORITIES (Lower number = higher priority)
+================================================================================
+
+Priority 0: SysTick          [Main timing - 100µs]
+Priority 1: CAN RX           [CAN receive]
+Priority 2: ADC Complete     [ADC conversion done]
+Priority 3: TIM2             [Timer overflow]
+Priority 4: Other interrupts
+
+================================================================================
+
+MEMORY MAP
+================================================================================
+
+Flash Memory (512KB)
+├─► 0x08000000 - 0x0801FFFF  [Application code]
+├─► 0x08020000 - 0x0803FFFF  [More code/data]
+└─► 0x080E0000 - 0x080FFFFF  [Parameter storage]
+
+RAM (128KB)
+├─► 0x20000000 - 0x2001FFFF  [Main RAM]
+│   ├─► Stack (grows down)
+│   ├─► Heap
+│   └─► Global variables
+└─► 0x10000000 - 0x1000FFFF  [CCM RAM - fast access]
+
+================================================================================
+
+KEY FUNCTIONS QUICK REFERENCE
+================================================================================
+
+INITIALIZATION:
+  main()                        - Entry point
+  GPIO_Init_Func()              - Setup GPIO
+  InitUserParaProcess()         - Load parameters
+  TaskParmInit()                - Initialize tasks
+
+PERIODIC EXECUTION:
+  TaskProcess()                 - Main task loop (100µs)
+  SysTick_Handler()             - Timer interrupt
+
+CONTROL:
+  PressureControlLoop()         - Pressure PID
+  AngleControlLoop()            - Angle PID
+  PowerControlLoop()            - Power limiting
+  PID_Calculate()               - PID algorithm
+
+SENSORS:
+  ReadAllSensors()              - Read all inputs
+  ADC_GetValue()                - Get ADC reading
+  AD7689_Read()                 - External ADC
+
+OUTPUTS:
+  UpdatePWM()                   - Set PWM duty
+  TIM_SetCompare()              - Update timer
+
+COMMUNICATION:
+  CAN_ProcessRxMessage()        - Handle CAN RX
+  CAN_SendStatus()              - Send CAN TX
+
+DIAGNOSTICS:
+  DiagnoseProcess()             - Run diagnostics
+  FaultHandler()                - Handle faults
+
+STORAGE:
+  SaveParametersToFlash()       - Save to flash
+  LoadParametersFromFlash()     - Load from flash
+
+================================================================================
+
+TIPS FOR UNDERSTANDING THE CODE
+================================================================================
+
+1. START WITH MAIN.C
+   - Understand initialization sequence
+   - Find the main loop
+   - Identify TaskProcess() call
+
+2. FOLLOW THE TIMING
+   - SysTick interrupt every 100µs
+   - TaskProcess() called from main loop
+   - Different task rates (100µs, 1ms, 10ms)
+
+3. TRACE ONE SENSOR
+   - Pick pressure sensor
+   - Find ADC reading in analog_input.c
+   - Follow to control loop in application.c
+   - See output in Hw_TIM.c
+
+4. UNDERSTAND ONE CONTROL LOOP
+   - Study pressure control
+   - See PID implementation
+   - Trace from input to output
+
+5. USE THE DEBUGGER
+   - Set breakpoint in TaskProcess()
+   - Watch global variables
+   - Step through code
+   - See real-time values
+
+================================================================================
