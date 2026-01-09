@@ -179,40 +179,7 @@ CONFIGURATION STRUCTURE
 │ (flash.c)                           │
 └─────────────────────────────────────┘
 
-================================================================================
-
-CONTROL LOOP DETAIL (Pressure Control Example)
-================================================================================
-
-Target Pressure (from CAN or local)
-         ↓
-    ┌────────┐
-    │ Error  │ = Target - Actual
-    └────┬───┘
-         ↓
-    ┌────────────────────────────────┐
-    │ PID Controller                 │
-    │ (algorithm.c)                  │
-    ├────────────────────────────────┤
-    │ P = Kp × Error                 │
-    │ I = Ki × ∫Error dt             │
-    │ D = Kd × dError/dt             │
-    │                                │
-    │ Output = P + I + D             │
-    └────┬───────────────────────────┘
-         ↓
-    ┌────────┐
-    │ Limits │ (limit.c)
-    └────┬───┘
-         ↓
-    Angle Command
-         ↓
-    ┌────────────────┐
-    │ Angle Control  │ (Inner loop)
-    │ Loop           │
-    └────┬───────────┘
-         ↓
-    Current Command
+65
          ↓
     ┌────────────────┐
     │ PWM Output     │ (Hw_TIM.c)
